@@ -19,4 +19,5 @@ response_time = Summary('response_time', 'Average response time')
 # Record the response time for a specific request
 @response_time.time()
 def handle_request():
+    pass
   # Perform some work
