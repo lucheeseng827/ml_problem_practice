@@ -1,0 +1,2 @@
+[dependencies]
+aws-sdk-rust = "0.9"
