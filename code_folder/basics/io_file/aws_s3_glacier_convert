@@ -1,0 +1,12 @@
+import boto3
+
+s3 = boto3.resource('s3')
+
+for bucket in s3.buckets.all():
+    print(bucket.name)
+
+for obj in s3.Bucket('mybucket').objects.all():
+    # print(obj.key)
+    # change glacier state to s3 object
+    s3.Object('mybucket', obj.key).restore_object(
+        RestoreRequest={'Days': 7, 'GlacierJobParameters': {'Tier': 'Bulk'}})
