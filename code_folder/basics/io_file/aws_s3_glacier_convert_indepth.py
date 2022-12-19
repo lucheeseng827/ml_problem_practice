@@ -17,7 +17,6 @@ def get_s3_glacier_objects():
             s3_glacier_objects.append(obj['Key'])
     return s3_glacier_objects
 
-            )
 # change s3 glacier object state to s3 object
 def change_s3_glacier_object_state(s3_glacier_objects):
     for s3_glacier_object in s3_glacier_objects:
@@ -39,7 +38,7 @@ def change_s3_glacier_object_state(s3_glacier_objects):
             s3.delete_object(
                 Bucket=os.environ['S3_BUCKET'],
                 Key=s3_glacier_object
-
+            )
 # main function
 def main():
     s3_glacier_objects = get_s3_glacier_objects()
