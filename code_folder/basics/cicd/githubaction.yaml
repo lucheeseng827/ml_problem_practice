@@ -1,0 +1,23 @@
+# Check out the code from the repository.
+# Set up a Python 3.8 environment.
+# Install the necessary dependencies from requirements.txt.
+# Run the integration tests defined in integration_tests.py.
+# You can customize this workflow to fit your specific needs. For example, you can add additional steps to build your code or deploy it to a staging environment.
+---
+name: Integration Tests
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install dependencies
+        run: |
+          python -m pip install -r requirements.txt
+      - name: Run tests
+        run: |
+          python -m pytest integration_tests.py
