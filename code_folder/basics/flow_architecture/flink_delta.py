@@ -29,8 +29,9 @@ class MyProcessFunction(GroupReduceFunction):
     def reduce(self, iterator, collector):
         # do some processing on the iterator and collect the results
         # ...
-
         # apply the custom function on the table
+
+
 result_table = table.group_by("column_name").reduce(MyProcessFunction())
 
 # convert the result table to a DataSet and print it
