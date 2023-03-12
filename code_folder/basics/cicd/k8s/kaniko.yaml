@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kaniko-config
+data:
+  config.json: |-
+    {
+      "auths": {
+        "https://index.docker.io/v1/": {
+          "auth": "<your-Docker-Hub-credentials>"
+        }
+      }
+    }
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: kaniko-pipeline
+spec:
+  workspaces:
+    - name: source
+    - name: dockerfile
+  tasks:
+    - name: build-and-push
+      taskRef:
+        name: kaniko-task
+      workspaces:
+        - name: source
+          workspace: source
+        - name: dockerfile
+          workspace: dockerfile
+      params:
+        - name: IMAGE
+          value: "<your-Docker-Hub-username>/<your-image-name>:<your-image-tag>"
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: kaniko-task
+spec:
+  inputs:
+    resources:
+      - name: source
+        type: git
+      - name: dockerfile
+        type: git
+  outputs:
+    resources:
+      - name: builtImage
+        type: image
+  steps:
+    - name: build-and-push
+      image: gcr.io/kaniko-project/executor:latest
+      command:
+        - /kaniko/executor
+      args:
+        - --context=/workspace/source
+        - --dockerfile=/workspace/dockerfile/Dockerfile
+        - --destination={{outputs.resources.builtImage.url}}
+      env:
+        - name: DOCKER_CONFIG
+          value: /tekton/home/.docker
+        - name: DOCKER_CONFIG_JSON
+          value: /tekton/home/.docker/config.json
+      volumeMounts:
+        - name: kaniko-config
+          mountPath: /tekton/home/.docker
+        - name: docker-socket
+          mountPath: /var/run/docker.sock
+  volumes:
+    - name: kaniko-config
+      configMap:
+        name: kaniko-config
+    - name: docker-socket
+      hostPath:
+        path: /var/run/docker.sock
+
+
+# Path: code_folder\basics\cicd\k8s\pipeline.yaml
