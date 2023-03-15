@@ -2,6 +2,7 @@ import sendgrid
 
 sg = sendgrid.SendGridAPIClient(apikey='your-sendgrid-api-key')
 
+
 def send_email(to, subject, body):
     from_email = Email("test@example.com")
     to_email = Email(to)
@@ -12,4 +13,6 @@ def send_email(to, subject, body):
     print(response.body)
     print(response.headers)
 
-send_email("test@example.com", "Hello, World!", "This is a test email sent using the SendGrid library.")
+
+send_email("test@example.com", "Hello, World!",
+           "This is a test email sent using the SendGrid library.")

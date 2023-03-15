@@ -10,8 +10,8 @@ webhook_url = "https://outlook.office.com/webhook/{webhook_id}/{webhook_key}/{we
 
 # Set the message content
 message = {
-  "title": "Message from Python",
-  "text": "This is a message from a Python script."
+    "title": "Message from Python",
+    "text": "This is a message from a Python script."
 }
 
 # Send the message
@@ -19,6 +19,6 @@ response = requests.post(webhook_url, json=message)
 
 # Check the status code of the response
 if response.status_code == 200:
-  print("Message sent successfully.")
+    print("Message sent successfully.")
 else:
-  print("Error sending message:", response.status_code)
+    print("Error sending message:", response.status_code)

@@ -7,10 +7,10 @@ REGION = "us-east-1"
 
 # Create an SES client
 client = boto3.client(
-  "ses",
-  aws_access_key_id=AWS_ACCESS_KEY_ID,
-  aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-  region_name=REGION
+    "ses",
+    aws_access_key_id=AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+    region_name=REGION
 )
 
 # Set the email parameters
@@ -21,28 +21,28 @@ from_address = "sender@example.com"
 
 # Send the email
 response = client.send_email(
-  Destination={
-    "ToAddresses": [
-      to_address
-    ]
-  },
-  Message={
-    "Body": {
-      "Text": {
-        "Charset": "UTF-8",
-        "Data": body
-      }
+    Destination={
+        "ToAddresses": [
+            to_address
+        ]
     },
-    "Subject": {
-      "Charset": "UTF-8",
-      "Data": subject
-    }
-  },
-  Source=from_address
+    Message={
+        "Body": {
+            "Text": {
+                "Charset": "UTF-8",
+                "Data": body
+            }
+        },
+        "Subject": {
+            "Charset": "UTF-8",
+            "Data": subject
+        }
+    },
+    Source=from_address
 )
 
 # Check the status code of the response
 if response["ResponseMetadata"]["HTTPStatusCode"] == 200:
-  print("Email sent successfully.")
+    print("Email sent successfully.")
 else:
-  print("Error sending email:", response)
+    print("Error sending email:", response)

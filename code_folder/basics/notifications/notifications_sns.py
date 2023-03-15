@@ -7,10 +7,10 @@ AWS_REGION = "us-east-1"
 
 # Create an SNS client
 client = boto3.client(
-  "sns",
-  aws_access_key_id=AWS_ACCESS_KEY_ID,
-  aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-  region_name=AWS_REGION
+    "sns",
+    aws_access_key_id=AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+    region_name=AWS_REGION
 )
 
 # Set the topic ARN and the message
@@ -19,8 +19,8 @@ message = "This is a message from Python."
 
 # Send the message
 response = client.publish(
-  TopicArn=topic_arn,
-  Message=message
+    TopicArn=topic_arn,
+    Message=message
 )
 
 # Print the message ID

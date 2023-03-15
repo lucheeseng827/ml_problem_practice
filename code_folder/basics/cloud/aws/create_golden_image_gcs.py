@@ -5,6 +5,7 @@ import os
 from google.auth import compute_engine
 from google.cloud import storage, container_v1
 
+
 def build_and_push_golden_image(event, context):
     # Get environment variables
     gcs_bucket_name = os.environ['GCS_BUCKET_NAME']
@@ -68,5 +69,6 @@ def build_and_push_golden_image(event, context):
     operation.result()
 
     # Tag and push golden image to Docker Hub
-    os.system(f'docker tag {dockerhub_username}/{golden_image_name}:{golden_image_version} {dockerhub_username}/{golden_image_name}:latest')
+    os.system(
+        f'docker tag {dockerhub_username}/{golden_image_name}:{golden_image_version} {dockerhub_username}/{golden_image_name}:latest')
     os.system(f'docker push {dockerhub_username}/{golden_image_name}:latest')

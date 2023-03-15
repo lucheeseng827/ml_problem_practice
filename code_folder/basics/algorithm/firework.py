@@ -13,8 +13,11 @@ Here is a simple example of the firework algorithm implemented in Python:
 import random
 
 # Define a fitness function
+
+
 def fitness(x):
-  return x**2
+    return x**2
+
 
 # Initialize the population of fireworks
 N = 10
@@ -23,24 +26,24 @@ population = [random.uniform(-10, 10) for _ in range(N)]
 # Perform the firework algorithm
 max_iter = 100
 for i in range(max_iter):
-  # Evaluate the fitness of each firework
-  fitness_values = [fitness(x) for x in population]
+    # Evaluate the fitness of each firework
+    fitness_values = [fitness(x) for x in population]
 
-  # Select a subset of fireworks to explode
-  subset_size = N // 2
-  subset = random.sample(range(N), subset_size)
+    # Select a subset of fireworks to explode
+    subset_size = N // 2
+    subset = random.sample(range(N), subset_size)
 
-  # Generate new fireworks by perturbing the positions of the selected fireworks
-  perturbation_factor = 0.5
-  new_fireworks = []
-  for j in subset:
-    x = population[j]
-    dx = perturbation_factor * (random.uniform(-1, 1) - x)
-    new_fireworks.append(x + dx)
+    # Generate new fireworks by perturbing the positions of the selected fireworks
+    perturbation_factor = 0.5
+    new_fireworks = []
+    for j in subset:
+        x = population[j]
+        dx = perturbation_factor * (random.uniform(-1, 1) - x)
+        new_fireworks.append(x + dx)
 
-  # Update the population of fireworks
-  for j in range(subset_size):
-    population[subset[j]] = new_fireworks[j]
+    # Update the population of fireworks
+    for j in range(subset_size):
+        population[subset[j]] = new_fireworks[j]
 
 # Print the final population
 print(population)

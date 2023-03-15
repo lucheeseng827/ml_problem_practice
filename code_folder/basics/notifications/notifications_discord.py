@@ -21,6 +21,8 @@ channel_id = 'CHANNEL_ID_GOES_HERE'
 server_name = 'SERVER_NAME_GOES_HERE'
 
 # Use the `on_ready` event to ensure that the client is ready to send the message
+
+
 @client.event
 async def on_ready():
     # Find the server with the specified name

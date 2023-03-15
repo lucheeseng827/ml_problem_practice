@@ -10,26 +10,26 @@ SERVICE_KEY = "your-service-key"
 
 # Set the incident details
 incident = {
-  "summary": "Error in Production",
-  "severity": "critical",
-  "source": "api"
+    "summary": "Error in Production",
+    "severity": "critical",
+    "source": "api"
 }
 
 # Send the incident
 response = requests.post(
-  "https://api.pagerduty.com/incidents",
-  headers={
-    "Authorization": f"Token token={PAGERDUTY_TOKEN}",
-    "Content-Type": "application/json"
-  },
-  json={
-    "service_key": SERVICE_KEY,
-    "incident": incident
-  }
+    "https://api.pagerduty.com/incidents",
+    headers={
+        "Authorization": f"Token token={PAGERDUTY_TOKEN}",
+        "Content-Type": "application/json"
+    },
+    json={
+        "service_key": SERVICE_KEY,
+        "incident": incident
+    }
 )
 
 # Check the status code of the response
 if response.status_code == 201:
-  print("Incident triggered successfully.")
+    print("Incident triggered successfully.")
 else:
-  print("Error triggering incident:", response.status_code)
+    print("Error triggering incident:", response.status_code)

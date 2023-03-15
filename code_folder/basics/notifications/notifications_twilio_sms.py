@@ -7,9 +7,9 @@ client = Client(account_sid, auth_token)
 
 message = client.messages \
                 .create(
-                     body='Hello there!',
-                     from_='your-twilio-number',
-                     to='recipient-number'
-                 )
+                    body='Hello there!',
+                    from_='your-twilio-number',
+                    to='recipient-number'
+                )
 
 print(message.sid)

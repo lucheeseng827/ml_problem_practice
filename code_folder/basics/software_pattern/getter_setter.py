@@ -15,6 +15,7 @@ class Employee:
     def set_salary(self, salary):
         self._salary = salary
 
+
 # Use the getter and setter methods
 employee = Employee("John Smith", 50000)
 print(employee.get_name())  # prints "John Smith"

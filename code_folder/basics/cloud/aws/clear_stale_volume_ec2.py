@@ -4,9 +4,9 @@ import pprint
 
 client = boto3.client('ec2')
 response = client.describe_volumes(
-    Filters=[        {            'Name': 'tag:Name',            'Values': ['foo']
-        }
-    ]
+    Filters=[{'Name': 'tag:Name',            'Values': ['foo']
+              }
+             ]
 )
 
 volumes = response['Volumes']

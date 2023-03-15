@@ -2,6 +2,7 @@ import boto3
 import json
 import os
 
+
 def lambda_handler(event, context):
     # Get environment variables
     ecs_cluster_name = os.environ['ECS_CLUSTER_NAME']
@@ -89,5 +90,6 @@ def lambda_handler(event, context):
         print(f'Task ran successfully: {task_response["tasks"]}')
 
     # Tag and push golden image to Docker Hub
-    os.system(f'docker tag {dockerhub_username}/{golden_image_name}:{golden_image_version} {dockerhub_username}/{golden_image_name}:latest')
+    os.system(
+        f'docker tag {dockerhub_username}/{golden_image_name}:{golden_image_version} {dockerhub_username}/{golden_image_name}:latest')
     os.system(f'docker push {dockerhub
