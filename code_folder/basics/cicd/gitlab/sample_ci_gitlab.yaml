@@ -1,0 +1,36 @@
+image: golang:1.17
+
+stages:
+  - build
+  - test
+  - integration
+
+variables:
+  GO111MODULE: "on"
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - .cache/
+
+before_script:
+  - mkdir -p .cache
+  - go mod download
+
+build:
+  stage: build
+  script:
+    - go build -o myapp ./...
+
+test:
+  stage: test
+  script:
+    - go test -coverprofile=coverage.txt ./...
+
+integration:
+  stage: integration
+  script:
+    - go test -coverprofile=integration_coverage.txt -tags=integration ./...
+  artifacts:
+    paths:
+      - integration_coverage.txt
