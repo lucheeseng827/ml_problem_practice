@@ -1,0 +1,15 @@
+# github action that pull and check the following on the yaml
+# - yaml-lint
+# - yamale
+# - yamllint
+# - yamllint-action
+
+# Path: .github/workflow/github_action.yaml
+# Compare this snippet from etl-datawarehouse-app-state-deploy.yaml:
+#       - name: Commit and push changes
+#         run: |
+#           cd ${{ env.APPLICATION_REPO }}
+#           git config user.email "${{ env.GIT_CONFIG_USER_EMAIL }}"
+#           git add *
+#           git config user.name "${{ env.GIT_CONFIG_USER_NAME }}"
+#           git commit -S -a -m "chore($REPO_NAME): bump to version $VERSION"
