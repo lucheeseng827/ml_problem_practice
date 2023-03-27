@@ -30,7 +30,11 @@ fn main() -> KafkaResult<()> {
             Ok(Some(message)) => {
                 // Process the message
                 match message.payload_view::<str>() {
-                    Some(Ok(s)) => println!("Key: '{}', Value: '{}'", message.key_view::<str>().unwrap(), s),
+                    Some(Ok(s)) => println!(
+                        "Key: '{}', Value: '{}'",
+                        message.key_view::<str>().unwrap(),
+                        s
+                    ),
                     Some(Err(e)) => eprintln!("Error while deserializing message payload: {}", e),
                     None => eprintln!("Message payload is not a string"),
                 }
