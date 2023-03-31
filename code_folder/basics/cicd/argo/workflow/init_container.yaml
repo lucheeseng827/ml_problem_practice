@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: s3-init-container-
+spec:
+  entrypoint: main
+  templates:
+  - name: main
+    steps:
+    - - name: download-data
+        template: download-data-from-s3
+    - - name: process-data
+        template: process-data-template
+
+  - name: download-data-from-s3
+    script:
+      image: amazon/aws-cli:2.x
+      command: [sh]
+      source: |
+        echo "Downloading data from S3..."
+        aws s3 cp s3://my-bucket/data.txt /data/data.txt
+      volumeMounts:
+      - name: data
+        mountPath: /data
+      envFrom:
+        - secretRef:
+            name: aws-secret
+
+  - name: process-data-template
+    container:
+      image: alpine:3.14
+      command: [sh, -c]
+      args: ["echo 'Processing data...'; cat /data/data.txt; sleep 10; echo 'Processing complete'"]
+      volumeMounts:
+      - name: data
+        mountPath: /data
+
+  volumes:
+  - name: data
+    emptyDir: {}

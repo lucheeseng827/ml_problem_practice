@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: parallel-container-
+spec:
+  entrypoint: parallel-execution
+  templates:
+  - name: parallel-execution
+    steps:
+    - - name: container-1
+        template: container-1-template
+      - name: container-2
+        template: container-2-template
+
+  - name: container-1-template
+    container:
+      image: alpine:3.14
+      command: ["sh", "-c"]
+      args: ["echo 'Container 1 is running'; sleep 10; echo 'Container 1 completed'"]
+
+  - name: container-2-template
+    container:
+      image: alpine:3.14
+      command: ["sh", "-c"]
+      args: ["echo 'Container 2 is running'; sleep 10; echo 'Container 2 completed'"]
