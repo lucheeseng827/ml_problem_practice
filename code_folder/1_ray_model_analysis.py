@@ -4,6 +4,7 @@ from ray import tune
 # Initialize Ray
 ray.init()
 
+
 # Define your training algorithm as a subclass of the `tune.Trainable` class
 class MyTrainingAlgorithm(tune.Trainable):
     def _train(self):
@@ -16,6 +17,7 @@ class MyTrainingAlgorithm(tune.Trainable):
 
         # Return the metrics as a dictionary
         return metrics
+
 
 # Define the search space for the hyperparameters
 hyperparam_search_space = {

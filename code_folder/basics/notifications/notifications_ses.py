@@ -10,7 +10,7 @@ client = boto3.client(
     "ses",
     aws_access_key_id=AWS_ACCESS_KEY_ID,
     aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-    region_name=REGION
+    region_name=REGION,
 )
 
 # Set the email parameters
@@ -21,24 +21,12 @@ from_address = "sender@example.com"
 
 # Send the email
 response = client.send_email(
-    Destination={
-        "ToAddresses": [
-            to_address
-        ]
-    },
+    Destination={"ToAddresses": [to_address]},
     Message={
-        "Body": {
-            "Text": {
-                "Charset": "UTF-8",
-                "Data": body
-            }
-        },
-        "Subject": {
-            "Charset": "UTF-8",
-            "Data": subject
-        }
+        "Body": {"Text": {"Charset": "UTF-8", "Data": body}},
+        "Subject": {"Charset": "UTF-8", "Data": subject},
     },
-    Source=from_address
+    Source=from_address,
 )
 
 # Check the status code of the response

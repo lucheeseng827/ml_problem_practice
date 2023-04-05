@@ -20,17 +20,19 @@ bucket = storage_client.get_bucket(bucket_name)
 x_train, x_test = x_train / 255.0, x_test / 255.0
 
 # Build the model
-model = Sequential([
-    Flatten(input_shape=(28, 28)),
-    Dense(128, activation='relu'),
-    Dropout(0.2),
-    Dense(10, activation='softmax')
-])
+model = Sequential(
+    [
+        Flatten(input_shape=(28, 28)),
+        Dense(128, activation="relu"),
+        Dropout(0.2),
+        Dense(10, activation="softmax"),
+    ]
+)
 
 # Compile the model
-model.compile(optimizer='adam',
-              loss='sparse_categorical_crossentropy',
-              metrics=['accuracy'])
+model.compile(
+    optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"]
+)
 
 # Set up MLflow tracking and automatic logging
 mlflow.set_tracking_uri("http://localhost:5000")
@@ -42,18 +44,16 @@ checkpoint_dir = tempfile.mkdtemp()
 checkpoint_path = os.path.join(checkpoint_dir, "model_checkpoint_{epoch:02d}.hdf5")
 
 checkpoint_callback = ModelCheckpoint(
-    checkpoint_path,
-    save_freq='epoch',
-    verbose=1,
-    save_weights_only=True
+    checkpoint_path, save_freq="epoch", verbose=1, save_weights_only=True
 )
 
 # Train the model
 model.fit(
-    x_train, y_train,
+    x_train,
+    y_train,
     epochs=5,
     validation_data=(x_test, y_test),
-    callbacks=[checkpoint_callback]
+    callbacks=[checkpoint_callback],
 )
 
 # Upload model checkpoints to Google Cloud Storage

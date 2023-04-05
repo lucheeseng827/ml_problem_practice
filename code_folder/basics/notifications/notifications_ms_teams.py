@@ -11,7 +11,7 @@ webhook_url = "https://outlook.office.com/webhook/{webhook_id}/{webhook_key}/{we
 # Set the message content
 message = {
     "title": "Message from Python",
-    "text": "This is a message from a Python script."
+    "text": "This is a message from a Python script.",
 }
 
 # Send the message

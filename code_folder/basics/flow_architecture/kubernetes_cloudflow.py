@@ -5,6 +5,7 @@ from cloudflow.operator import (
     OutputStream,
 )
 
+
 class MyOperator(Operator):
     def __init__(self, input_stream: InputStream, output_stream: OutputStream) -> None:
         super().__init__(input_stream, output_stream)
@@ -12,6 +13,7 @@ class MyOperator(Operator):
     def process_element(self, element: Any, timestamp: int) -> Optional[List[Any]]:
         # process the element and return a list of elements to write to the output stream
         return [processed_element]
+
 
 # define the input and output streams
 input_stream = Stream(name="input")

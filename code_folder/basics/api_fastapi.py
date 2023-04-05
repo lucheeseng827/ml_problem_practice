@@ -17,16 +17,21 @@ from fastapi.openapi.utils import get_openapi
 
 app = FastAPI()
 
+
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
+
 
 @app.get("/items/{item_id}")
 def read_item(item_id: int, q: str = None):
     return {"item_id": item_id, "q": q}
 
+
 # Add this block to generate swagger documentation
-openapi_prefix = '/openapi'
+openapi_prefix = "/openapi"
+
+
 @app.get(openapi_prefix)
 def get_openapi_route():
     return get_openapi(
@@ -36,6 +41,7 @@ def get_openapi_route():
         routes=app.routes,
     )
 
-@app.get(openapi_prefix+'_html')
+
+@app.get(openapi_prefix + "_html")
 def get_openapi_html_route():
     return get_swagger_ui_html(openapi_url=openapi_prefix)

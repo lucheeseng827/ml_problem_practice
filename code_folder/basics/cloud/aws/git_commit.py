@@ -1,5 +1,6 @@
 import git
 
+
 def commit_and_push(repo_path, commit_message):
     # Access the Git repository
     repo = git.Repo(repo_path)
@@ -18,6 +19,7 @@ def commit_and_push(repo_path, commit_message):
 
     else:
         print("No changes to commit")
+
 
 if __name__ == "__main__":
     repo_path = "/path/to/your/repo"

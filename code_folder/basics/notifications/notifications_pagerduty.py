@@ -9,23 +9,16 @@ PAGERDUTY_TOKEN = "your-api-token"
 SERVICE_KEY = "your-service-key"
 
 # Set the incident details
-incident = {
-    "summary": "Error in Production",
-    "severity": "critical",
-    "source": "api"
-}
+incident = {"summary": "Error in Production", "severity": "critical", "source": "api"}
 
 # Send the incident
 response = requests.post(
     "https://api.pagerduty.com/incidents",
     headers={
         "Authorization": f"Token token={PAGERDUTY_TOKEN}",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
     },
-    json={
-        "service_key": SERVICE_KEY,
-        "incident": incident
-    }
+    json={"service_key": SERVICE_KEY, "incident": incident},
 )
 
 # Check the status code of the response

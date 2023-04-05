@@ -27,19 +27,37 @@ def create_virtual_machine(resource_group, vm_name, location):
     print(result.stdout)
 
 
-parser = argparse.ArgumentParser(description="A script to interact with AWS CLI and Azure CLI")
+parser = argparse.ArgumentParser(
+    description="A script to interact with AWS CLI and Azure CLI"
+)
 
-parser.add_argument("-p", "--provider", help="Cloud provider (aws or azure)", required=True)
+parser.add_argument(
+    "-p", "--provider", help="Cloud provider (aws or azure)", required=True
+)
 
 subparsers = parser.add_subparsers(dest="command", required=True)
 
 list_parser = subparsers.add_parser("list", help="List instances")
-list_parser.add_argument("-r", "--region", help="Region (for AWS) or resource group (for Azure)", required=True)
+list_parser.add_argument(
+    "-r",
+    "--region",
+    help="Region (for AWS) or resource group (for Azure)",
+    required=True,
+)
 
 create_parser = subparsers.add_parser("create", help="Create an instance")
-create_parser.add_argument("-r", "--region", help="Region (for AWS) or resource group (for Azure)", required=True)
-create_parser.add_argument("-n", "--name", help="Name of the new instance (for Azure only)")
-create_parser.add_argument("-i", "--image", help="Image ID (for AWS) or location (for Azure)")
+create_parser.add_argument(
+    "-r",
+    "--region",
+    help="Region (for AWS) or resource group (for Azure)",
+    required=True,
+)
+create_parser.add_argument(
+    "-n", "--name", help="Name of the new instance (for Azure only)"
+)
+create_parser.add_argument(
+    "-i", "--image", help="Image ID (for AWS) or location (for Azure)"
+)
 
 args = parser.parse_args()
 

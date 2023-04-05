@@ -5,7 +5,7 @@ from datetime import datetime
 # Update your timezone, business hours start and end time accordingly
 TIMEZONE = "America/New_York"
 BUSINESS_START_HOUR = 9  # 9 AM
-BUSINESS_END_HOUR = 17   # 5 PM
+BUSINESS_END_HOUR = 17  # 5 PM
 
 # Environment variables
 INSTANCE_IDS = os.environ["INSTANCE_IDS"].split(",")

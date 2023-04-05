@@ -7,12 +7,14 @@ from ipywidgets import IntSlider
 # Create an IntSlider widget with a range of 1-10 and a step size of 2
 slider = IntSlider(min=1, max=10, step=2)
 
+
 # Define a callback function that prints the value of the slider
 def on_value_change(change):
-  print(change['new'])
+    print(change["new"])
+
 
 # Register the callback function to be called when the value of the slider is changed
-slider.observe(on_value_change, names='value')
+slider.observe(on_value_change, names="value")
 
 # Display the widget
 slider

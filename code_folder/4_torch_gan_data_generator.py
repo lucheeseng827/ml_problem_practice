@@ -5,6 +5,7 @@ import torch.optim as optim
 # Set up the input data
 X = torch.tensor(X_train, dtype=torch.float)
 
+
 # Set up the generator model
 class Generator(nn.Module):
     def __init__(self, input_dim, hidden_dim, output_dim):
@@ -21,7 +22,9 @@ class Generator(nn.Module):
         x = self.fc3(x)
         return x
 
+
 generator = Generator(10, 64, 10)
+
 
 # Set up the discriminator model
 class Discriminator(nn.Module):
@@ -38,6 +41,7 @@ class Discriminator(nn.Module):
         x = torch.relu(x)
         x = self.fc3(x)
         return torch.sigmoid(x)
+
 
 discriminator = Discriminator(10, 64, 1)
 

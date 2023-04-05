@@ -9,7 +9,9 @@ import h5py
 h5_model = h5py.File("model.h5", "r")
 
 # Convert the model to the ONNX format
-onnx_model = onnxmltools.convert_h5_to_onnx(h5_model, input_names=["input"], output_names=["output"])
+onnx_model = onnxmltools.convert_h5_to_onnx(
+    h5_model, input_names=["input"], output_names=["output"]
+)
 
 # Save the model to an ONNX file
 onnxmltools.utils.save_model(onnx_model, "model.onnx")

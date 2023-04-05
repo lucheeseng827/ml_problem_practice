@@ -17,29 +17,27 @@ from googleapiclient.errors import HttpError
 creds = Credentials.from_authorized_user_info()
 
 # Use the `build` function from the `googleapiclient.discovery` library to create a service object for the Calendar API
-service = build('calendar', 'v3', credentials=creds)
+service = build("calendar", "v3", credentials=creds)
 
 # Set the necessary parameters for the Calendar event
 event = {
-  'summary': 'EVENT_SUMMARY_GOES_HERE',
-  'location': 'EVENT_LOCATION_GOES_HERE',
-  'description': 'EVENT_DESCRIPTION_GOES_HERE',
-  'start': {
-    'dateTime': 'START_DATETIME_GOES_HERE',
-    'timeZone': 'TIME_ZONE_GOES_HERE',
-  },
-  'end': {
-    'dateTime': 'END_DATETIME_GOES_HERE',
-    'timeZone': 'TIME_ZONE_GOES_HERE',
-  },
-  'attendees': [
-    {'email': 'ATTENDEE_EMAIL_ADDRESS_GOES_HERE'},
-  ],
-  'reminders': {
-    'useDefault': True
-  },
+    "summary": "EVENT_SUMMARY_GOES_HERE",
+    "location": "EVENT_LOCATION_GOES_HERE",
+    "description": "EVENT_DESCRIPTION_GOES_HERE",
+    "start": {
+        "dateTime": "START_DATETIME_GOES_HERE",
+        "timeZone": "TIME_ZONE_GOES_HERE",
+    },
+    "end": {
+        "dateTime": "END_DATETIME_GOES_HERE",
+        "timeZone": "TIME_ZONE_GOES_HERE",
+    },
+    "attendees": [
+        {"email": "ATTENDEE_EMAIL_ADDRESS_GOES_HERE"},
+    ],
+    "reminders": {"useDefault": True},
 }
 
 # Use the `events().insert()` method to create the event and send the invite
-event = service.events().insert(calendarId='primary', body=event).execute()
-print(F'Event created: {event.get("htmlLink")}')
+event = service.events().insert(calendarId="primary", body=event).execute()
+print(f'Event created: {event.get("htmlLink")}')

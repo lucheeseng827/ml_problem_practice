@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-st.set_option('deprecation.showfileUploaderEncoding', False)
+st.set_option("deprecation.showfileUploaderEncoding", False)
 
 
 def main():

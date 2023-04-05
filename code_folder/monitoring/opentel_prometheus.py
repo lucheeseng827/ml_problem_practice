@@ -10,7 +10,7 @@ metrics.set_meter_provider(MeterProvider())
 trace.set_tracer_provider(TracerProvider())
 
 # Create a Summary metric to track the average response time
-response_time = Summary('response_time', 'Average response time')
+response_time = Summary("response_time", "Average response time")
 
 # Record the response time for a specific request
 
@@ -23,5 +23,4 @@ def handle_request():
 
 # Push the collected metrics to the Prometheus gateway
 exporter = PrometheusExporter(namespace="my_app")
-push_to_gateway('prometheus-server:9090', job='my-app',
-                registry=exporter.registry)
+push_to_gateway("prometheus-server:9090", job="my-app", registry=exporter.registry)

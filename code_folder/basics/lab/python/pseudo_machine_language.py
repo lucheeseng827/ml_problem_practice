@@ -10,19 +10,29 @@ class PseudoMachineInterpreter:
             self.program_counter += 1
 
             if instruction == "ADD":
-                reg1, reg2, reg3 = program[self.program_counter:self.program_counter + 3]
+                reg1, reg2, reg3 = program[
+                    self.program_counter : self.program_counter + 3
+                ]
                 self.registers[reg3] = self.registers[reg1] + self.registers[reg2]
                 self.program_counter += 3
             elif instruction == "SUB":
-                reg1, reg2, reg3 = program[self.program_counter:self.program_counter + 3]
+                reg1, reg2, reg3 = program[
+                    self.program_counter : self.program_counter + 3
+                ]
                 self.registers[reg3] = self.registers[reg1] - self.registers[reg2]
                 self.program_counter += 3
             elif instruction == "LOAD":
-                addr, reg = program[self.program_counter], program[self.program_counter + 1]
+                addr, reg = (
+                    program[self.program_counter],
+                    program[self.program_counter + 1],
+                )
                 self.registers[reg] = self.memory[addr]
                 self.program_counter += 2
             elif instruction == "STORE":
-                reg, addr = program[self.program_counter], program[self.program_counter + 1]
+                reg, addr = (
+                    program[self.program_counter],
+                    program[self.program_counter + 1],
+                )
                 self.memory[addr] = self.registers[reg]
                 self.program_counter += 2
             elif instruction == "HALT":
@@ -36,10 +46,19 @@ class PseudoMachineInterpreter:
 # Example usage:
 interpreter = PseudoMachineInterpreter()
 program = [
-    "LOAD", 0, 0,  # Load value from memory[0] to register 0
-    "LOAD", 1, 1,  # Load value from memory[1] to register 1
-    "ADD", 0, 1, 2,  # Add values from register 0 and 1, store result in register 2
-    "STORE", 2, 2,  # Store value from register 2 to memory[2]
+    "LOAD",
+    0,
+    0,  # Load value from memory[0] to register 0
+    "LOAD",
+    1,
+    1,  # Load value from memory[1] to register 1
+    "ADD",
+    0,
+    1,
+    2,  # Add values from register 0 and 1, store result in register 2
+    "STORE",
+    2,
+    2,  # Store value from register 2 to memory[2]
     "HALT",  # Terminate the program
 ]
 

@@ -4,20 +4,21 @@ import tensorflow as tf
 (x_train, y_train), (x_val, y_val) = load_dataset()
 
 # Define the model and its layers
-model = tf.keras.models.Sequential([
-    # Other layers here...
-])
+model = tf.keras.models.Sequential(
+    [
+        # Other layers here...
+    ]
+)
 
 # Compile the model with the appropriate loss and optimizer
 model.compile(loss=...)
 
 # Train the model on the training set
-history = model.fit(x_train, y_train,
-                    validation_data=(x_val, y_val),
-                    epochs=...)
+history = model.fit(x_train, y_train, validation_data=(x_val, y_val), epochs=...)
 
 # Plot the model's performance on the training and validation sets
 import matplotlib.pyplot as plt
+
 plt.plot(history.history["loss"])
 plt.plot(history.history["val_loss"])
 plt.show()

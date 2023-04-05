@@ -5,9 +5,7 @@ from azure.servicebus import ServiceBusClient, Message
 servicebus_client = ServiceBusClient.from_connection_string("YOUR_CONNECTION_STRING")
 
 
-
 queue_client = servicebus_client.get_queue_client("my-queue")
-
 
 
 message = Message("Hello, World!")

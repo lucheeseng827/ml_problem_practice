@@ -35,3 +35,4 @@ fn main() {
 
     // Evaluate the trained model on the test set
     let (x_test, y_test) = load_image
+}

@@ -20,16 +20,18 @@ security_schemes = security_scheme_generator(
     {
         "bearer": OAuth2PasswordBearer(
             tokenUrl="/auth/token",
-            scopes={"me": "Read and write access to your own data"}
+            scopes={"me": "Read and write access to your own data"},
         )
     }
 )
+
 
 @app.post("/auth/token")
 async def login(username: str, password: str, scopes: SecurityScopes):
     if username != "test" or password != "test":
         raise HTTPException(status_code=401, detail="Incorrect username or password")
     return {"access_token": "fake-jwt-token", "token_type": "bearer"}
+
 
 @app.get("/items/")
 async def read_items(scopes: SecurityScopes = SecurityScopes(scopes={"me"})):

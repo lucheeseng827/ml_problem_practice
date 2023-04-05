@@ -1,6 +1,6 @@
 from gensim.models import Word2Vec
 
-documents = [result['_source']['field_name'] for result in results['hits']['hits']]
+documents = [result["_source"]["field_name"] for result in results["hits"]["hits"]]
 
 model = Word2Vec(documents, size=100, window=5, min_count=1)
 

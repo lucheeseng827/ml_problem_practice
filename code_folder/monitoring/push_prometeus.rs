@@ -18,4 +18,4 @@ let metric_families = registry.gather();
 encoder.encode(&metric_families, &mut buffer).unwrap();
 
 // Print the encoded metrics
-println!("{}", String::from_utf8(buffer).
+println!("{}", String::from_utf8(buffer).unwrap());
