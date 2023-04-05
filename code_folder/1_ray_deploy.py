@@ -5,6 +5,8 @@ from ray import tune
 # Initialize Ray
 ray.init()
 
+loss = 0.05
+
 
 # Define your training algorithm as a subclass of the `tune.Trainable` class
 class MyTrainingAlgorithm(tune.Trainable):

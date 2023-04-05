@@ -1,0 +1,21 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: kaniko-pipeline
+spec:
+  workspaces:
+    - name: source
+    - name: dockerfile
+  tasks:
+    - name: build-and-push
+      taskRef:
+        name: kaniko-task
+      workspaces:
+        - name: source
+          workspace: source
+        - name: dockerfile
+          workspace: dockerfile
+      params:
+        - name: IMAGE
+          value: "<your-Docker-Hub-username>/<your-image-name>:<your-image-tag>"

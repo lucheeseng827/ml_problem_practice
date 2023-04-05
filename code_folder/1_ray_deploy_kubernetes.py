@@ -4,6 +4,12 @@ from ray import tune
 # Initialize Ray
 ray.init()
 
+
+class Loss(tune.Trainable):
+    def _train(self):
+        return {"loss": 0.05}
+
+
 # Define your training algorithm as a subclass of the `tune.Trainable` class
 class MyTrainingAlgorithm(tune.Trainable):
     def _train(self):
@@ -11,13 +17,16 @@ class MyTrainingAlgorithm(tune.Trainable):
         # dictionary to access the hyperparameters and other configuration
         # options provided by the user
         # Return the training metrics as a dictionary
-        return {"loss": loss}
+        return {"loss": Loss}
 
     def _save(self, checkpoint_dir):
         # Save the model state to the provided checkpoint directory
+        file_save = open(checkpoint_dir, "w")
 
     def _restore(self, checkpoint_path):
         # Restore the model state from the provided checkpoint path
+        file_restore = open(checkpoint_path, "r")
+
 
 # Define the search space for the hyperparameters
 hyperparam_search_space = {

@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kaniko-config
+data:
+  config.json: |-
+    {
+      "auths": {
+        "https://index.docker.io/v1/": {
+          "auth": "<your-Docker-Hub-credentials>"
+        }
+      }
+    }
