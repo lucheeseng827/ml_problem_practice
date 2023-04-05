@@ -66,3 +66,19 @@ def my_dataflow_pipeline(
 
     dataflow_op.set_memory_request('4G')
     dataflow_op.set_memory_limit('4G')
+    dataflow_op.set_cpu_request('1')
+    dataflow_op.set_cpu_limit('1')
+
+    dataflow_op.container.add_env_variable(
+        k8s_client.V1EnvVar(
+            name='GOOGLE_APPLICATION_CREDENTIALS',
+            value='/secret/gcp-credentials/user-gcp-sa.json',
+        )
+    )
+
+    dataflow_op.container.add_volume_mount(
+        k8s_client.V1VolumeMount(
+            name='gcp-credentials',
+            mount_path='/secret/gcp-credentials',
+        )
+    )
