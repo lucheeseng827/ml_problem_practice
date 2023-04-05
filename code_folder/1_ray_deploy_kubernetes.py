@@ -10,7 +10,6 @@ class MyTrainingAlgorithm(tune.Trainable):
         # Perform one iteration of training here, using the `self.config`
         # dictionary to access the hyperparameters and other configuration
         # options provided by the user
-
         # Return the training metrics as a dictionary
         return {"loss": loss}
 

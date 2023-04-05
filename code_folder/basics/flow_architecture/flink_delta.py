@@ -13,10 +13,7 @@ t_env = BatchTableEnvironment.create(env, t_config)
 # register a Delta table
 t_env.connect(
     "delta",  # file system to read the delta table from
-    {
-        "path": "path/to/delta/table",
-        "format": "delta"
-    }
+    {"path": "path/to/delta/table", "format": "delta"},
 )
 
 # read the table
@@ -30,6 +27,11 @@ class MyProcessFunction(GroupReduceFunction):
         # do some processing on the iterator and collect the results
         # ...
         # apply the custom function on the table
+        args = [DataTypes.STRING()]
+        result_type = DataTypes.STRING()
+        result_table = table.group_by("column_name").reduce(
+            MyProcessFunction(), *args, result_type=result_type
+        )
 
 
 result_table = table.group_by("column_name").reduce(MyProcessFunction())
