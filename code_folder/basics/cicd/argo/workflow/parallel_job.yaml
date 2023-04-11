@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: parallel-job-
+spec:
+  entrypoint: parallel-job
+  templates:
+    - name: parallel-job
+      parallelism: 3 # number of parallel jobs to run
+      completions: 3 # number of successful parallel jobs required to complete the workflow
+      steps:
+        - - name: job-1
+            template: container-job
+        - - name: job-2
+            template: container-job
+        - - name: job-3
+            template: container-job
+    - name: container-job
+      container:
+        image: your-container-image
+        command: [ "your-command" ]

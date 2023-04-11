@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: my-template
+spec:
+  entrypoint: my-script
+  templates:
+    - name: my-script
+      inputs:
+        parameters:
+          - name: message
+            value: "Hello, world!"
+      container:
+        image: python:3.8
+        command: ["python"]
+        args: ["-c", "print('{{inputs.parameters.message}}')"]

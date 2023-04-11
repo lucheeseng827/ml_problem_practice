@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: parallel-containers-
+spec:
+  entrypoint: parallel-containers
+  templates:
+    - name: parallel-containers
+      steps:
+        - - name: container1
+            template: container1
+          - name: container2
+            template: container2
+          - name: container3
+            template: container3
+    - name: container1
+      container:
+        image: my-container-1:latest
+    - name: container2
+      container:
+        image: my-container-2:latest
+    - name: container3
+      container:
+        image: my-container-3:latest
