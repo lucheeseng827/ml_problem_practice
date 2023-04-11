@@ -8,8 +8,8 @@ config = {
         "port": 5432,
         "database": "my_database",
         "username": "my_username",
-        "password": "my_password"
-    }
+        "password": "my_password",
+    },
 }
 
 # create a Soda SQL context object

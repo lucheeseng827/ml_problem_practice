@@ -7,7 +7,8 @@ import pymysql
 
 # create connection
 connection = pymysql.connect(
-    host='localhost', passwd='password', user='root', db='test')
+    host="localhost", passwd="password", user="root", db="test"
+)
 
 # create cursor
 cursor = connection.cursor()
@@ -23,8 +24,10 @@ data = cursor.fetchall()
 
 def create_data_set(number_of_rows, number_of_columns):
     # Create a dataframe with 1000 rows and 3 columns
-    df = pd.DataFrame(number_of_rows * [range(number_of_columns)],
-                      columns=["feature_1", "feature_2", "feature_3"])
+    df = pd.DataFrame(
+        number_of_rows * [range(number_of_columns)],
+        columns=["feature_1", "feature_2", "feature_3"],
+    )
 
     return df
 
