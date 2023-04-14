@@ -1,3 +1,13 @@
+# This code monitors the spot price history for the last 10 minutes and prints the
+# timestamp and spot price to the console every 60 seconds.
+#
+# The code creates an EC2 client, then uses the describe_spot_price_history() function
+# to fetch the spot price history for the last 10 minutes. The response is stored in the
+# spot_price_history variable. The code then loops through the spot_price_history variable
+# and prints the timestamp and spot price to the console. The code then sleeps for 60 seconds
+# before repeating the process.
+
+
 import boto3
 import time
 from datetime import datetime, timedelta
