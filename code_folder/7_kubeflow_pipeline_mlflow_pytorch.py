@@ -2,17 +2,19 @@ import kfp.dsl as dsl
 import kfp.gcp as gcp
 import kfp.onprem as onprem
 
+
 # Define the PyTorch training component
 @dsl.python_component(
-    name='train_pytorch',
-    description='Train a PyTorch model and log metrics with MLflow',
-    base_image='pytorch/pytorch:1.7.1-cuda11.0-cudnn8-runtime')
+    name="train_pytorch",
+    description="Train a PyTorch model and log metrics with MLflow",
+    base_image="pytorch/pytorch:1.7.1-cuda11.0-cudnn8-runtime",
+)
 def train_pytorch(
     epochs: int,
     learning_rate: float,
     mlflow_tracking_uri: str,
     mlflow_experiment_name: str,
-    model_path: str
+    model_path: str,
 ):
     # Import necessary libraries
     import torch
@@ -24,19 +26,23 @@ def train_pytorch(
 
     # Define the transform for the input data
     transform = transforms.Compose(
-        [transforms.ToTensor(),
-         transforms.Normalize((0.5,), (0.5,))])
+        [transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))]
+    )
 
     # Download the MNIST dataset and load it into dataloaders
-    trainset = torchvision.datasets.MNIST(root='./data', train=True,
-                                          download=True, transform=transform)
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=64,
-                                              shuffle=True, num_workers=2)
+    trainset = torchvision.datasets.MNIST(
+        root="./data", train=True, download=True, transform=transform
+    )
+    trainloader = torch.utils.data.DataLoader(
+        trainset, batch_size=64, shuffle=True, num_workers=2
+    )
 
-    testset = torchvision.datasets.MNIST(root='./data', train=False,
-                                         download=True, transform=transform)
-    testloader = torch.utils.data.DataLoader(testset, batch_size=64,
-                                             shuffle=False, num_workers=2)
+    testset = torchvision.datasets.MNIST(
+        root="./data", train=False, download=True, transform=transform
+    )
+    testloader = torch.utils.data.DataLoader(
+        testset, batch_size=64, shuffle=False, num_workers=2
+    )
 
     # Define the neural network architecture
     class Net(nn.Module):
@@ -69,10 +75,11 @@ def train_pytorch(
     net.to(device)
 
     # Start the MLflow run
-    with mlflow.start_run(experiment_id=mlflow_experiment_name, run_name="pytorch-training") as run:
+    with mlflow.start_run(
+        experiment_id=mlflow_experiment_name, run_name="pytorch-training"
+    ) as run:
         # Train the network
         for epoch in range(epochs):  # loop over the dataset multiple times
-
             running_loss = 0.0
             for i, data in enumerate(trainloader, 0):
                 # get the inputs; data is a list of [inputs, labels]
@@ -92,13 +99,14 @@ def train_pytorch(
                 # print statistics
                 running_loss += loss.item()
                 if i % 2000 == 1999:  # print every 2000 mini-batches
-                    print('[%d, %5d] loss: %.3f' %
-                          (epoch + 1, i + 1, running_loss / 2000))
+                    print(
+                        "[%d, %5d] loss: %.3f" % (epoch + 1, i + 1, running_loss / 2000)
+                    )
                     # Log the loss metric to MLflow
                     mlflow.log_metric("loss", running_loss / 2000)
                     running_loss = 0.0
 
-        print('Finished Training')
+        print("Finished Training")
 
         # Save the PyTorch model
         model_path = "models/pytorch_cifar_net.pth"
@@ -106,6 +114,7 @@ def train_pytorch(
 
     # Log the PyTorch model as an MLflow artifact
     mlflow.log_artifact(model_path, artifact_path="pytorch-model")
+
 
 # Define a function to test the trained PyTorch model
 def test_model():
@@ -116,12 +125,14 @@ def test_model():
 
     # Load the CIFAR-10 test dataset
     transform = transforms.Compose(
-        [transforms.ToTensor(),
-         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-    testset = torchvision.datasets.CIFAR10(root='./data', train=False,
-                                           download=True, transform=transform)
-    testloader = torch.utils.data.DataLoader(testset, batch_size=4,
-                                             shuffle=False, num_workers=2)
+        [transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
+    )
+    testset = torchvision.datasets.CIFAR10(
+        root="./data", train=False, download=True, transform=transform
+    )
+    testloader = torch.utils.data.DataLoader(
+        testset, batch_size=4, shuffle=False, num_workers=2
+    )
 
     # Send the model and test data to the GPU if available
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -146,7 +157,8 @@ def test_model():
     # Calculate the accuracy and log it as an MLflow metric
     accuracy = 100 * correct / total
     mlflow.log_metric("accuracy", accuracy)
-    print('Accuracy of the network on the 10000 test images: %d %%' % accuracy)
+    print("Accuracy of the network on the 10000 test images: %d %%" % accuracy)
+
 
 # Define a Kubeflow pipeline that trains and tests the PyTorch model
 @kfp.dsl.pipeline(name="pytorch-cifar10-mlflow-pipeline")
@@ -156,7 +168,7 @@ def pytorch_cifar10_mlflow_pipeline():
         image="pytorch:latest",
         command=["sh", "-c"],
         arguments=["python train.py"],
-        file_outputs={"model_path": "/mlflow-artifacts/pytorch-model"}
+        file_outputs={"model_path": "/mlflow-artifacts/pytorch-model"},
     )
 
     test = kfp.dsl.ContainerOp(

@@ -17,25 +17,42 @@ from kfp.v2.dsl import (
     component,
 )
 
+
 @func_to_container_op
 def train_model_pytorch(
-    epochs: int, lr: float, batch_size: int, model_path: Output[Model], metrics: Output[Metrics]
+    epochs: int,
+    lr: float,
+    batch_size: int,
+    model_path: Output[Model],
+    metrics: Output[Metrics],
 ):
     # Define the device to train the model on
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     # Define the PyTorch transforms to use for data augmentation and normalization
     transform = transforms.Compose(
-        [transforms.RandomHorizontalFlip(), transforms.RandomCrop(32, padding=4), transforms.ToTensor(),]
+        [
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomCrop(32, padding=4),
+            transforms.ToTensor(),
+        ]
     )
 
     # Download and load the CIFAR-10 training dataset
-    trainset = torchvision.datasets.CIFAR10(root="./data", train=True, download=True, transform=transform)
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=2)
+    trainset = torchvision.datasets.CIFAR10(
+        root="./data", train=True, download=True, transform=transform
+    )
+    trainloader = torch.utils.data.DataLoader(
+        trainset, batch_size=batch_size, shuffle=True, num_workers=2
+    )
 
     # Download and load the CIFAR-10 testing dataset
-    testset = torchvision.datasets.CIFAR10(root="./data", train=False, download=True, transform=transform)
-    testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=2)
+    testset = torchvision.datasets.CIFAR10(
+        root="./data", train=False, download=True, transform=transform
+    )
+    testloader = torch.utils.data.DataLoader(
+        testset, batch_size=batch_size, shuffle=False, num_workers=2
+    )
 
     # Define the PyTorch network architecture
     class Net(nn.Module):
