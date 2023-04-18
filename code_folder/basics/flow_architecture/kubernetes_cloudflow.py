@@ -1,9 +1,5 @@
+from cloudflow.operator import InputStream, Operator, OutputStream
 from cloudflow.stream import Stream
-from cloudflow.operator import (
-    Operator,
-    InputStream,
-    OutputStream,
-)
 
 
 class MyOperator(Operator):

@@ -1,5 +1,5 @@
 # pip install azure-servicebus
-from azure.servicebus import ServiceBusClient, Message
+from azure.servicebus import Message, ServiceBusClient
 
 # Replace YOUR_CONNECTION_STRING with the connection string for your Azure Service Bus namespace
 servicebus_client = ServiceBusClient.from_connection_string("YOUR_CONNECTION_STRING")

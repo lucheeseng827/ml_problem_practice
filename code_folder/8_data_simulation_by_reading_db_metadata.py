@@ -2,7 +2,6 @@
 # Path: 9_data_simulation_by_reading_db_metadata.py
 
 import pandas as pd
-
 import pymysql
 
 # create connection

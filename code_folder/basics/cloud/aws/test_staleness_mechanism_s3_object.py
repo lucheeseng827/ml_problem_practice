@@ -1,4 +1,5 @@
 import unittest
+
 import boto3
 from moto import mock_s3
 from staleness_lambda import lambda_handler

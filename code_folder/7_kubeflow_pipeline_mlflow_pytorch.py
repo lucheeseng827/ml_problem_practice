@@ -17,12 +17,12 @@ def train_pytorch(
     model_path: str,
 ):
     # Import necessary libraries
+    import mlflow.pytorch
     import torch
-    import torchvision
-    import torchvision.transforms as transforms
     import torch.nn as nn
     import torch.optim as optim
-    import mlflow.pytorch
+    import torchvision
+    import torchvision.transforms as transforms
 
     # Define the transform for the input data
     transform = transforms.Compose(

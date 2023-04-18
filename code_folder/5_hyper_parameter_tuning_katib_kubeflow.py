@@ -1,6 +1,5 @@
 import kfp
-from kfp import components
-from kfp import dsl
+from kfp import components, dsl
 
 # Define the search space for the hyperparameters
 hyperparameter_spec = {

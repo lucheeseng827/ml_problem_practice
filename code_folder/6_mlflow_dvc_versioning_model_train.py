@@ -23,12 +23,13 @@ git push
 
 
 import os
+
 import mlflow
 import mlflow.tensorflow
 import tensorflow as tf
 from tensorflow.keras.datasets import mnist
-from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, Flatten
+from tensorflow.keras.models import Sequential
 
 # Pull the dataset from DVC
 os.system("dvc pull path/to/your/dataset.dvc")

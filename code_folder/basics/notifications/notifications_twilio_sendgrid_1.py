@@ -1,7 +1,7 @@
-import sendgrid
 import os
-from sendgrid.helpers.mail import *
 
+import sendgrid
+from sendgrid.helpers.mail import *
 
 sg = sendgrid.SendGridAPIClient(apikey=os.environ.get("SENDGRID_API_KEY"))
 from_email = Email("test@example.com")

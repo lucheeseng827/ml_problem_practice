@@ -1,9 +1,9 @@
 import mlflow
 import mlflow.sklearn
-from sklearn.ensemble import RandomForestRegressor
 from sklearn.datasets import load_boston
-from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import train_test_split
 
 # Load data and split into training and testing sets
 data = load_boston()

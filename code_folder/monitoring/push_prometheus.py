@@ -1,4 +1,5 @@
 from urllib import response
+
 from prometheus_client import Summary, push_to_gateway
 
 # Create a Summary metric to track the average response time

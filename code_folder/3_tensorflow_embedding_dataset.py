@@ -1,10 +1,8 @@
 """This code assumes that the tabular data is stored in a CSV file called data.csv, and that the categorical variables are in the columns 'cat1', 'cat2', and 'cat3'. The code creates an embedding layer for each of these variables, and then concatenates the embedding layers into a single layer. Finally, it adds a dense layer on top of the concatenated embeddings and trains the model on the dataset."""
 
-import tensorflow as tf
-
-
 # Load the tabular data into a Pandas dataframe
 import pandas as pd
+import tensorflow as tf
 
 df = pd.read_csv("data.csv")
 

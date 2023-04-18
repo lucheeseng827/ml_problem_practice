@@ -1,5 +1,5 @@
-import timeit
 import gc
+import timeit
 
 code_snippet = """
 result = 0

@@ -1,6 +1,7 @@
-import boto3
 import json
 import os
+
+import boto3
 
 dockerhub_username = os.environ["DOCKERHUB_USERNAME"]
 dockerhub = "docker.io"

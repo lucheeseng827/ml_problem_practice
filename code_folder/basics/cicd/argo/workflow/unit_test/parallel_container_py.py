@@ -1,7 +1,8 @@
-import requests
 import json
 import time
+
 import pytest
+import requests
 
 # Define the URL of the Argo API server
 api_url = "http://localhost:2746/api/v1"

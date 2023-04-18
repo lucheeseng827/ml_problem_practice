@@ -1,5 +1,6 @@
-import boto3
 import datetime
+
+import boto3
 
 
 def check_stale_objects(bucket, threshold):

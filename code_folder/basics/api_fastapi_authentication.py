@@ -8,11 +8,8 @@ We also define a protected endpoint /items/, which requires the me scope to acce
 You can find more information about FastAPI-Security and other ways to implement authentication in FastAPI in the documentation: https://fastapi-security.tiangolo.com/"""
 
 from fastapi import FastAPI
-from fastapi_security import (
-    OAuth2PasswordBearer,
-    SecurityScopes,
-    security_scheme_generator,
-)
+from fastapi_security import (OAuth2PasswordBearer, SecurityScopes,
+                              security_scheme_generator)
 
 app = FastAPI()
 

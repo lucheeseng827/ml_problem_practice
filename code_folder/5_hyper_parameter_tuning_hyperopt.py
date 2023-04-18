@@ -1,4 +1,4 @@
-from hyperopt import fmin, tpe, hp
+from hyperopt import fmin, hp, tpe
 
 
 # Define the model

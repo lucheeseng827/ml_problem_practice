@@ -1,6 +1,5 @@
 import boto3
 
-
 # Create an EC2 client
 ec2 = boto3.client("ec2")
 

@@ -1,7 +1,8 @@
 import unittest
+
 import mlflow.sklearn
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 LOCAL_MODEL_URI = "./mlruns/0/your-run-id/artifacts/model"
 

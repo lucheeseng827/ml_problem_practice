@@ -4,9 +4,9 @@
 # The code uses the describe_volumes function to retrieve the volumes
 # The code uses the delete_volume function to delete the volumes
 
-import boto3
 import pprint
 
+import boto3
 
 client = boto3.client("ec2")
 response = client.describe_volumes(Filters=[{"Name": "tag:Name", "Values": ["foo"]}])

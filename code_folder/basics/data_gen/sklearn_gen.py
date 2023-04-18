@@ -1,9 +1,8 @@
-from sklearn.model_selection import validation_curve
-from sklearn.model_selection import ShuffleSplit
-from sklearn.tree import DecisionTreeRegressor
 import numpy as np
 import sklearn
 from sklearn.datasets import make_friedman1
+from sklearn.model_selection import ShuffleSplit, validation_curve
+from sklearn.tree import DecisionTreeRegressor
 
 X, y = make_friedman1(n_samples=500, n_features=15, noise=0.3, random_state=23)
 

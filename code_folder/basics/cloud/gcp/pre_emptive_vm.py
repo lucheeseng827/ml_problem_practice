@@ -1,6 +1,7 @@
 # how to get prememptive vm in gcp to start and stop ahead of schedule of termination
 
 import time
+
 from google.cloud import compute_v1
 
 

@@ -1,13 +1,14 @@
 import os
 import tempfile
+
 import mlflow
 import mlflow.tensorflow
 import tensorflow as tf
-from tensorflow.keras.datasets import mnist
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout, Flatten
-from tensorflow.keras.callbacks import ModelCheckpoint
 from google.cloud import storage
+from tensorflow.keras.callbacks import ModelCheckpoint
+from tensorflow.keras.datasets import mnist
+from tensorflow.keras.layers import Dense, Dropout, Flatten
+from tensorflow.keras.models import Sequential
 
 # Set up Google Cloud Storage
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "path/to/your/credentials.json"

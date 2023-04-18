@@ -3,7 +3,7 @@ import json
 import os
 
 from google.auth import compute_engine
-from google.cloud import storage, container_v1
+from google.cloud import container_v1, storage
 
 
 def build_and_push_golden_image(event, context):

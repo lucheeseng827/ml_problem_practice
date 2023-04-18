@@ -1,8 +1,9 @@
-import boto3
 import json
 import os
 import sys
 import time
+
+import boto3
 
 # instantiate boto3
 s3 = boto3.client("s3")

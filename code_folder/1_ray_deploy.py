@@ -1,5 +1,6 @@
-import ray
 import os
+
+import ray
 from ray import tune
 
 # Initialize Ray

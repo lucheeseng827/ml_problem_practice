@@ -8,9 +8,10 @@
 # before repeating the process.
 
 
-import boto3
 import time
 from datetime import datetime, timedelta
+
+import boto3
 
 # Function to fetch spot price history
 

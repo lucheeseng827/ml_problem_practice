@@ -1,5 +1,5 @@
-import subprocess
 import shlex
+import subprocess
 
 gcloud_args = ["gcloud", "some-command", "--some-flag", "some-value"]
 # quoted_args = [shlex.quote(arg) for arg in gcloud_args]

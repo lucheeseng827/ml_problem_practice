@@ -4,18 +4,10 @@ import torch.nn as nn
 import torch.optim as optim
 import torchvision
 import torchvision.transforms as transforms
-
 from kfp import dsl
 from kfp.components import func_to_container_op
-from kfp.v2.dsl import (
-    Dataset,
-    Input,
-    Model,
-    Output,
-    ClassificationMetrics,
-    Metrics,
-    component,
-)
+from kfp.v2.dsl import (ClassificationMetrics, Dataset, Input, Metrics, Model,
+                        Output, component)
 
 
 @func_to_container_op

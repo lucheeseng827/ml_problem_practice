@@ -2,8 +2,8 @@
 
 # Here's an example of how you can use the onnxmltools package to convert a model saved in the HDF5 format to the ONNX format
 
-import onnxmltools
 import h5py
+import onnxmltools
 
 # Load the model from the HDF5 file
 h5_model = h5py.File("model.h5", "r")

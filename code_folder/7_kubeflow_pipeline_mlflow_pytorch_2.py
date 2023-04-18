@@ -1,8 +1,9 @@
 import kfp
+import mlflow
+import mlflow.pytorch
 from kfp import dsl
 from kubernetes.client import V1Toleration
-import mlflow.pytorch
-import mlflow
+
 
 def train_with_pytorch(epochs: int, learning_rate: float, momentum: float, dropout: float, hidden_size: int, batch_size: int, mlflow_experiment_name: str):
     import torch
