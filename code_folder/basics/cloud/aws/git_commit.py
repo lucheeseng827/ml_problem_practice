@@ -29,8 +29,6 @@ if __name__ == "__main__":
 
 """
 pip install gitpython
-
-
 git config --global user.name "Your Name"
 git config --global user.email "youremail@example.com"
 """
