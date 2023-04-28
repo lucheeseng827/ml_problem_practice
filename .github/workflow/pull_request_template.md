@@ -9,7 +9,7 @@
 
 Please confirm that you have done the following before requesting reviews:
 
-- [ ] I have confirmed that the PR type is appropriate for the change I am making according to the [mancube Pull Request and Commit Message Naming Conventions]().
+- [ ] I have confirmed that the PR type is appropriate for the change I am making according to the [Pull Request and Commit Message Naming Conventions]().
 - [ ] I have typed an adequate description that explains **why** I am making this change.
 - [ ] I have installed and run standard pre-commit hooks that lints and validates my code.
 
