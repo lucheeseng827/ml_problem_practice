@@ -1,0 +1,21 @@
+---
+
+# argo workflow with retry
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: hello-world-
+spec:
+  entrypoint: whalesay
+  templates:
+  - name: whalesay
+    retryStrategy:
+      limit: 3
+      backoff:
+        duration: "10"
+        factor: 2
+        maxDuration: "1m"
+    container:
+      image: docker/whalesay:latest
+      command: [cowsay]
+      args: ["hello world"]

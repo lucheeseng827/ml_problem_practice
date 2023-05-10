@@ -1,0 +1,12 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: image-processing-pipeline-run
+spec:
+  pipelineRef:
+    name: image-processing-pipeline
+  params:
+    - name: s3Bucket
+      value: your-s3-bucket
+    - name: scriptPath
+      value: path/to/training_script.py
