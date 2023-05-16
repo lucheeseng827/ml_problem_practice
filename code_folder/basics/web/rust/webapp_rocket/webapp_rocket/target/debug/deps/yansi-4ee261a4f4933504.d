@@ -1,0 +1,12 @@
+C:\Users\ixido\GitHub\ml_problem_practice\code_folder\basics\web\rust\webapp_rocket\webapp_rocket\target\debug\deps\yansi-4ee261a4f4933504.rmeta: C:\Users\ixido\.cargo\registry\src\github.com-1ecc6299db9ec823\yansi-0.5.1\src\lib.rs C:\Users\ixido\.cargo\registry\src\github.com-1ecc6299db9ec823\yansi-0.5.1\src\macros.rs C:\Users\ixido\.cargo\registry\src\github.com-1ecc6299db9ec823\yansi-0.5.1\src\windows.rs C:\Users\ixido\.cargo\registry\src\github.com-1ecc6299db9ec823\yansi-0.5.1\src\paint.rs C:\Users\ixido\.cargo\registry\src\github.com-1ecc6299db9ec823\yansi-0.5.1\src\style.rs C:\Users\ixido\.cargo\registry\src\github.com-1ecc6299db9ec823\yansi-0.5.1\src\color.rs
+
+C:\Users\ixido\GitHub\ml_problem_practice\code_folder\basics\web\rust\webapp_rocket\webapp_rocket\target\debug\deps\libyansi-4ee261a4f4933504.rlib: C:\Users\ixido\.cargo\registry\src\github.com-1ecc6299db9ec823\yansi-0.5.1\src\lib.rs C:\Users\ixido\.cargo\registry\src\github.com-1ecc6299db9ec823\yansi-0.5.1\src\macros.rs C:\Users\ixido\.cargo\registry\src\github.com-1ecc6299db9ec823\yansi-0.5.1\src\windows.rs C:\Users\ixido\.cargo\registry\src\github.com-1ecc6299db9ec823\yansi-0.5.1\src\paint.rs C:\Users\ixido\.cargo\registry\src\github.com-1ecc6299db9ec823\yansi-0.5.1\src\style.rs C:\Users\ixido\.cargo\registry\src\github.com-1ecc6299db9ec823\yansi-0.5.1\src\color.rs
+
+C:\Users\ixido\GitHub\ml_problem_practice\code_folder\basics\web\rust\webapp_rocket\webapp_rocket\target\debug\deps\yansi-4ee261a4f4933504.d: C:\Users\ixido\.cargo\registry\src\github.com-1ecc6299db9ec823\yansi-0.5.1\src\lib.rs C:\Users\ixido\.cargo\registry\src\github.com-1ecc6299db9ec823\yansi-0.5.1\src\macros.rs C:\Users\ixido\.cargo\registry\src\github.com-1ecc6299db9ec823\yansi-0.5.1\src\windows.rs C:\Users\ixido\.cargo\registry\src\github.com-1ecc6299db9ec823\yansi-0.5.1\src\paint.rs C:\Users\ixido\.cargo\registry\src\github.com-1ecc6299db9ec823\yansi-0.5.1\src\style.rs C:\Users\ixido\.cargo\registry\src\github.com-1ecc6299db9ec823\yansi-0.5.1\src\color.rs
+
+C:\Users\ixido\.cargo\registry\src\github.com-1ecc6299db9ec823\yansi-0.5.1\src\lib.rs:
+C:\Users\ixido\.cargo\registry\src\github.com-1ecc6299db9ec823\yansi-0.5.1\src\macros.rs:
+C:\Users\ixido\.cargo\registry\src\github.com-1ecc6299db9ec823\yansi-0.5.1\src\windows.rs:
+C:\Users\ixido\.cargo\registry\src\github.com-1ecc6299db9ec823\yansi-0.5.1\src\paint.rs:
+C:\Users\ixido\.cargo\registry\src\github.com-1ecc6299db9ec823\yansi-0.5.1\src\style.rs:
+C:\Users\ixido\.cargo\registry\src\github.com-1ecc6299db9ec823\yansi-0.5.1\src\color.rs:
