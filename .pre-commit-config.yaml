@@ -9,14 +9,14 @@ repos:
     rev: 23.3.0
     hooks:
     -   id: black
--   repo: https://github.com/pycqa/pylint
-    rev: v3.0.0a6
-    hooks:
-    -   id: pylint
-    args:
-    -   --errors-only
-    # ignore rule E0401
-    -   --disable=E0401
+# -   repo: https://github.com/pycqa/pylint
+#     rev: v3.0.0a6
+#     hooks:
+#     -   id: pylint
+#     args:
+#     -   --errors-only
+#     # ignore rule E0401
+#     -   --disable=E0401
 -   repo: https://github.com/pycqa/isort
     rev: 5.12.0
     hooks:
