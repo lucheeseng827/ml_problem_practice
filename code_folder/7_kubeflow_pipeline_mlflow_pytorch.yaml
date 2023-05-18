@@ -1,0 +1,82 @@
+apiVersion: 'kubeflow.org/v1beta1'
+kind: 'Pipeline'
+metadata:
+  name: 'PyTorch Training Pipeline'
+  description: 'A pipeline that trains a PyTorch neural network on MNIST dataset'
+spec:
+  pipelines:
+    - name: 'pytorch-training-pipeline'
+      description: 'A pipeline that trains a PyTorch neural network on MNIST dataset'
+      version: '1.0.0'
+      parameters:
+        - name: 'epochs'
+          type: 'Integer'
+          default: 10
+        - name: 'learning_rate'
+          type: 'Number'
+          default: 0.001
+        - name: 'momentum'
+          type: 'Number'
+          default: 0.9
+        - name: 'dropout'
+          type: 'Number'
+          default: 0.5
+        - name: 'hidden_size'
+          type: 'Integer'
+          default: 128
+        - name: 'batch_size'
+          type: 'Integer'
+          default: 64
+        - name: 'mlflow_experiment_name'
+          type: 'String'
+          default: 'pytorch-training-experiment'
+      steps:
+        - name: 'train'
+          displayName: 'Train with PyTorch'
+          arguments:
+            parameters:
+              - name: 'epochs'
+                value: '{{inputs.parameters.epochs}}'
+              - name: 'learning_rate'
+                value: '{{inputs.parameters.learning_rate}}'
+              - name: 'momentum'
+                value: '{{inputs.parameters.momentum}}'
+              - name: 'dropout'
+                value: '{{inputs.parameters.dropout}}'
+              - name: 'hidden_size'
+                value: '{{inputs.parameters.hidden_size}}'
+              - name: 'batch_size'
+                value: '{{inputs.parameters.batch_size}}'
+              - name: 'mlflow_experiment_name'
+                value: '{{inputs.parameters.mlflow_experiment_name}}'
+          container:
+            image: '<image-name>'
+            command: ['python', '<path-to-script>.py']
+            args: ['--epochs', '{{inputs.parameters.epochs}}',
+                   '--learning_rate', '{{inputs.parameters.learning_rate}}',
+                   '--momentum', '{{inputs.parameters.momentum}}',
+                   '--dropout', '{{inputs.parameters.dropout}}',
+                   '--hidden_size', '{{inputs.parameters.hidden_size}}',
+                   '--batch_size', '{{inputs.parameters.batch_size}}',
+                   '--mlflow_experiment_name', '{{inputs.parameters.mlflow_experiment_name}}']
+            env:
+              - name: 'MLFLOW_TRACKING_URI'
+                value: 'http://mlflow-tracking-server:5000'
+              - name: 'MLFLOW_S3_ENDPOINT_URL'
+                value: 'http://minio:9000'
+              - name: 'AWS_ACCESS_KEY_ID'
+                value: 'minio'
+              - name: 'AWS_SECRET_ACCESS_KEY'
+                value: 'minio123'
+              - name: 'AWS_REGION'
+                value: 'us-east-1'
+            resources:
+              limits:
+                nvidia.com/gpu: 1
+            volumeMounts: []
+            tolerations:
+              - key: 'key'
+                operator: 'Equal'
+                value: 'value'
+                effect: 'NoSchedule'
+          parallel: false
