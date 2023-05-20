@@ -30,10 +30,16 @@ model = Net(input_size, hidden_size, num_classes)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(model.parameters(), lr=learning_rate)
 
+# Define the data iterator (assuming you have `train_loader` and `test_loader`)
+train_loader = torch.utils.data.DataLoader(
+    trainset, batch_size=batch_size, shuffle=True
+)
+test_loader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False)
+
 # Train the model
 for epoch in range(num_epochs):
     # Loop over the data iterator and process the inputs and labels
-    for inputs, labels in data_iterator:
+    for inputs, labels in train_loader:
         # Zero the gradients
         optimizer.zero_grad()
 
@@ -47,6 +53,29 @@ for epoch in range(num_epochs):
         # Update the weights
         optimizer.step()
 
+
+# Function to evaluate the model
+def evaluate(model, data_loader):
+    model.eval()
+    loss_total = 0
+    correct_total = 0
+    total_samples = 0
+
+    with torch.no_grad():
+        for inputs, labels in data_loader:
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+            _, predicted = torch.max(outputs.data, 1)
+
+            loss_total += loss.item()
+            correct_total += (predicted == labels).sum().item()
+            total_samples += labels.size(0)
+
+    loss_avg = loss_total / total_samples
+    acc_avg = correct_total / total_samples
+    return loss_avg, acc_avg
+
+
 # Test the model
-test_loss, test_acc = evaluate(model, test_iterator)
+test_loss, test_acc = evaluate(model, test_loader)
 print("Test Loss: {:.6f}, Test Acc: {:.6f}".format(test_loss, test_acc))
