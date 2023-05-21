@@ -1,5 +1,9 @@
 {
-    "github.copilot.advanced": {
-        "Volume": 0.0,
-    }
+  "github.copilot.advanced": {
+    "Volume": 0.0
+  },
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  },
+  "python.formatting.provider": "none"
 }
