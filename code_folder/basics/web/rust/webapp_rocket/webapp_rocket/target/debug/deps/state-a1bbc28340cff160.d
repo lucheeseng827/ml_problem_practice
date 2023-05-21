@@ -1,0 +1,11 @@
+C:\Users\ixido\GitHub\ml_problem_practice\code_folder\basics\web\rust\webapp_rocket\webapp_rocket\target\debug\deps\state-a1bbc28340cff160.rmeta: C:\Users\ixido\.cargo\registry\src\index.crates.io-6f17d22bba15001f\state-0.4.2\src\lib.rs C:\Users\ixido\.cargo\registry\src\index.crates.io-6f17d22bba15001f\state-0.4.2\src\ident_hash.rs C:\Users\ixido\.cargo\registry\src\index.crates.io-6f17d22bba15001f\state-0.4.2\src\container.rs C:\Users\ixido\.cargo\registry\src\index.crates.io-6f17d22bba15001f\state-0.4.2\src\storage.rs C:\Users\ixido\.cargo\registry\src\index.crates.io-6f17d22bba15001f\state-0.4.2\src\init.rs
+
+C:\Users\ixido\GitHub\ml_problem_practice\code_folder\basics\web\rust\webapp_rocket\webapp_rocket\target\debug\deps\libstate-a1bbc28340cff160.rlib: C:\Users\ixido\.cargo\registry\src\index.crates.io-6f17d22bba15001f\state-0.4.2\src\lib.rs C:\Users\ixido\.cargo\registry\src\index.crates.io-6f17d22bba15001f\state-0.4.2\src\ident_hash.rs C:\Users\ixido\.cargo\registry\src\index.crates.io-6f17d22bba15001f\state-0.4.2\src\container.rs C:\Users\ixido\.cargo\registry\src\index.crates.io-6f17d22bba15001f\state-0.4.2\src\storage.rs C:\Users\ixido\.cargo\registry\src\index.crates.io-6f17d22bba15001f\state-0.4.2\src\init.rs
+
+C:\Users\ixido\GitHub\ml_problem_practice\code_folder\basics\web\rust\webapp_rocket\webapp_rocket\target\debug\deps\state-a1bbc28340cff160.d: C:\Users\ixido\.cargo\registry\src\index.crates.io-6f17d22bba15001f\state-0.4.2\src\lib.rs C:\Users\ixido\.cargo\registry\src\index.crates.io-6f17d22bba15001f\state-0.4.2\src\ident_hash.rs C:\Users\ixido\.cargo\registry\src\index.crates.io-6f17d22bba15001f\state-0.4.2\src\container.rs C:\Users\ixido\.cargo\registry\src\index.crates.io-6f17d22bba15001f\state-0.4.2\src\storage.rs C:\Users\ixido\.cargo\registry\src\index.crates.io-6f17d22bba15001f\state-0.4.2\src\init.rs
+
+C:\Users\ixido\.cargo\registry\src\index.crates.io-6f17d22bba15001f\state-0.4.2\src\lib.rs:
+C:\Users\ixido\.cargo\registry\src\index.crates.io-6f17d22bba15001f\state-0.4.2\src\ident_hash.rs:
+C:\Users\ixido\.cargo\registry\src\index.crates.io-6f17d22bba15001f\state-0.4.2\src\container.rs:
+C:\Users\ixido\.cargo\registry\src\index.crates.io-6f17d22bba15001f\state-0.4.2\src\storage.rs:
+C:\Users\ixido\.cargo\registry\src\index.crates.io-6f17d22bba15001f\state-0.4.2\src\init.rs:
