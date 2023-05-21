@@ -1,9 +1,10 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader, TensorDataset
-from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from torch.utils.data import DataLoader, TensorDataset
+
 
 # Define the feature engineering steps
 def feature_engineering(data):
@@ -11,6 +12,7 @@ def feature_engineering(data):
     scaler = StandardScaler()
     scaled_data = scaler.fit_transform(data)
     return scaled_data
+
 
 # Define the neural network model
 class Model(nn.Module):
@@ -26,6 +28,7 @@ class Model(nn.Module):
         out = self.fc2(out)
         return out
 
+
 # Load the tabular data
 data = load_tabular_data()  # Replace with your own data loading code
 
@@ -35,9 +38,9 @@ processed_data = feature_engineering(data)
 # Split the data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(
     processed_data[:, :-1],  # Features
-    processed_data[:, -1],   # Target
+    processed_data[:, -1],  # Target
     test_size=0.2,
-    random_state=42
+    random_state=42,
 )
 
 # Convert data to PyTorch tensors
