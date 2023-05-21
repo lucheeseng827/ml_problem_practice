@@ -3,7 +3,6 @@ import os
 
 from google.cloud import aiplatform
 
-
 <<<<<<< HEAD
 def create_notebook_instance(project_id, location, machine_type, no_public_ip, custom_container_image):
   """Creates a GCP Vertex AI notebook instance on a non-public IP with a custom container.

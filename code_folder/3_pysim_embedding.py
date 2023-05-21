@@ -1,5 +1,5 @@
-from gensim.models import Word2Vec
 import pandas as pd
+from gensim.models import Word2Vec
 
 # Assuming you have a list of documents obtained from Elasticsearch results
 documents = [result["_source"]["field_name"] for result in results["hits"]["hits"]]
@@ -13,16 +13,18 @@ embeddings = model.wv
 # Store the embeddings in a secondary data store, such as a database or file system
 # Option 1: Storing embeddings in a pandas DataFrame and saving to a CSV file
 embedding_df = pd.DataFrame(embeddings.vectors, index=embeddings.index2word)
-embedding_df.to_csv('word_embeddings.csv')
+embedding_df.to_csv("word_embeddings.csv")
 
 # Option 2: Storing embeddings in a MySQL database using PyMySQL
 import pymysql
 
 # Connect to the MySQL database
-connection = pymysql.connect(host='localhost', user='your_username', password='your_password', db='your_database')
+connection = pymysql.connect(
+    host="localhost", user="your_username", password="your_password", db="your_database"
+)
 
 # Create a table to store the embeddings
-table_name = 'word_embeddings'
+table_name = "word_embeddings"
 with connection.cursor() as cursor:
     create_table_query = f"CREATE TABLE IF NOT EXISTS {table_name} (word VARCHAR(255) PRIMARY KEY, embedding BLOB)"
     cursor.execute(create_table_query)

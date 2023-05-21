@@ -1,4 +1,5 @@
 import tensorflow as tf
+import matplotlib.pyplot as plt
 
 # Load the training dataset and split it into a training set and a validation set
 (x_train, y_train), (x_val, y_val) = load_dataset()
@@ -17,10 +18,11 @@ model.compile(loss=...)
 history = model.fit(x_train, y_train, validation_data=(x_val, y_val), epochs=...)
 
 # Plot the model's performance on the training and validation sets
-import matplotlib.pyplot as plt
-
 plt.plot(history.history["loss"])
 plt.plot(history.history["val_loss"])
+plt.xlabel("Epochs")
+plt.ylabel("Loss")
+plt.legend(["Train Loss", "Validation Loss"])
 plt.show()
 
 
