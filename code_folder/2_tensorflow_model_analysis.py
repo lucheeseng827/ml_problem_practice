@@ -1,5 +1,5 @@
-import tensorflow as tf
 import matplotlib.pyplot as plt
+import tensorflow as tf
 
 # Load the training dataset and split it into a training set and a validation set
 (x_train, y_train), (x_val, y_val) = load_dataset()

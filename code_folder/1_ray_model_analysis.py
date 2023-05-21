@@ -54,13 +54,14 @@ best_trial = analysis.get_best_trial("metric_name", "max")
 best_config = best_trial.config
 best_checkpoint = best_trial.checkpoint.value
 
+
 # Custom analysis method
 def custom_analysis(results):
     # Perform custom analysis on the results
     pass
 
-custom_analysis(results)
 
+custom_analysis(results)
 
 
 """
