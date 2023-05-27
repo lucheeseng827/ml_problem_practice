@@ -1,0 +1,71 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: dependent-dag-pipeline
+spec:
+  tasks:
+    - name: task-a
+      taskRef:
+        name: task-a
+    - name: task-b
+      taskRef:
+        name: task-b
+      runAfter:
+        - task-a
+    - name: task-c
+      taskRef:
+        name: task-c
+      runAfter:
+        - task-b
+
+---
+
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: task-a
+spec:
+  steps:
+    - name: step-a
+      image: python:3.9
+      script: |
+        python -c 'from task_a import run_task_a; run_task_a()'
+
+
+---
+
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: task-b
+spec:
+  steps:
+    - name: step-b
+      image: python:3.9
+      script: |
+        python -c 'from task_b import run_task_b; run_task_b()'
+
+
+---
+
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: task-c
+spec:
+  steps:
+    - name: step-c
+      image: python:3.9
+      script: |
+        python -c 'from task_c import run_task_c; run_task_c()'
+
+
+---
+
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: dependent-dag-pipeline-run
+spec:
+  pipelineRef:
+    name: dependent-dag-pipeline
