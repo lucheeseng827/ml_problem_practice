@@ -3,6 +3,7 @@ import os
 
 from google.cloud import aiplatform
 
+
 def create_notebook_instance(
     project_id, location, machine_type, no_public_ip, custom_container_image
 ):
