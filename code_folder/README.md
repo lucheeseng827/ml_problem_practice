@@ -19,7 +19,9 @@ Precommit hooks
 CICD set up setting up RAY cluster
 Distributed training with RAY
 Terraform code for ray cluster
-
+Setting up ray cluster on AWS
+ray cluster on sorting algorithm
+ray cluster with llm
 
 ## References
 [ray.io,https://docs.ray.io/en/master/]
