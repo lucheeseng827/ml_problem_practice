@@ -1,5 +1,6 @@
 import logging
 
+
 class Logger:
     _instance = None
 
@@ -14,7 +15,6 @@ class Logger:
 
     def log(self, message):
         self.logger.info(message)
-
 
 
 logger = Logger()

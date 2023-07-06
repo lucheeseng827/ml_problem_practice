@@ -9,6 +9,7 @@ class Aircraft:
     def receive_message(self, message):
         print(f"{self.name} received message: {message}")
 
+
 class AirTrafficController:
     def __init__(self):
         self.aircrafts = []
@@ -20,6 +21,7 @@ class AirTrafficController:
         for aircraft in self.aircrafts:
             if aircraft != sender:
                 aircraft.receive_message(message)
+
 
 # Create aircrafts and mediator (air traffic controller)
 controller = AirTrafficController()

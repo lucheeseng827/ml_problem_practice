@@ -1,11 +1,13 @@
 import copy
 
+
 class DocumentPrototype:
     def clone(self):
         return copy.deepcopy(self)
 
     def render(self):
         raise NotImplementedError
+
 
 class Invoice(DocumentPrototype):
     def __init__(self, customer_name, amount):
@@ -17,6 +19,7 @@ class Invoice(DocumentPrototype):
         print(f"Customer: {self.customer_name}")
         print(f"Amount: ${self.amount}")
         print("---")
+
 
 class Contract(DocumentPrototype):
     def __init__(self, client_name, terms):
@@ -30,6 +33,7 @@ class Contract(DocumentPrototype):
         for term in self.terms:
             print(f"- {term}")
         print("---")
+
 
 # Create prototypes for invoice and contract
 invoice_prototype = Invoice("John Doe", 1000)

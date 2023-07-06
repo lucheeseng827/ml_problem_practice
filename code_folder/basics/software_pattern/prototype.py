@@ -1,8 +1,10 @@
 import copy
 
+
 class Prototype:
     def clone(self):
         return copy.deepcopy(self)
+
 
 class ConcretePrototype(Prototype):
     def __init__(self, name):
@@ -10,6 +12,7 @@ class ConcretePrototype(Prototype):
 
     def display(self):
         print(f"ConcretePrototype: {self.name}")
+
 
 # Create an instance of the prototype
 prototype = ConcretePrototype("Prototype")
