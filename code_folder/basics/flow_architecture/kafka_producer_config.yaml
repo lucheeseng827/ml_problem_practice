@@ -1,0 +1,6 @@
+kafka_servers: localhost:9092
+topic: my_topic
+name: John Doe
+metadata:
+  - key1: value1
+  - key2: value2
