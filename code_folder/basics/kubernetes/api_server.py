@@ -1,9 +1,8 @@
 import requests
 
+
 def check_api_status(api_url, api_key):
-    headers = {
-        'Authorization': f'Bearer {api_key}'
-    }
+    headers = {"Authorization": f"Bearer {api_key}"}
 
     try:
         response = requests.get(api_url, headers=headers)
@@ -19,7 +18,8 @@ def check_api_status(api_url, api_key):
         print(f"Error: {e}")
         print("API server is unreachable.")
 
+
 # Usage example
-api_url = 'https://api.example.com/status'  # Replace with the actual API URL
-api_key = 'your_api_key'  # Replace with your API key
+api_url = "https://api.example.com/status"  # Replace with the actual API URL
+api_key = "your_api_key"  # Replace with your API key
 check_api_status(api_url, api_key)

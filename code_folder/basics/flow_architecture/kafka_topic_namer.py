@@ -1,13 +1,14 @@
 import spacy
 
 # Load the spaCy English model
-nlp = spacy.load('en_core_web_sm')
+nlp = spacy.load("en_core_web_sm")
 
 # Business domain-specific keywords
-business_keywords = ['finance', 'sales', 'marketing', 'hr', 'inventory']
+business_keywords = ["finance", "sales", "marketing", "hr", "inventory"]
 
 # Environment-specific keywords
-environment_keywords = ['dev', 'qa', 'prod', 'sandbox']
+environment_keywords = ["dev", "qa", "prod", "sandbox"]
+
 
 # Function to suggest topic names based on NLP processing
 def suggest_topic_names(sentence):
@@ -34,6 +35,7 @@ def suggest_topic_names(sentence):
         topic_suggestions.append(environment)
 
     return topic_suggestions
+
 
 # Example usage
 sentence = "This Kafka topic is related to finance in the production environment"
