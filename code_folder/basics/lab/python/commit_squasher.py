@@ -1,6 +1,8 @@
 import os
 import shutil
+
 import git
+
 
 def squash_commits(repository_path, branch_name):
     # Step 1: Clone the repository
@@ -29,6 +31,7 @@ def squash_commits(repository_path, branch_name):
 
     finally:
         shutil.rmtree(temp_dir)
+
 
 if __name__ == "__main__":
     repository_path = "https://github.com/your-username/your-repository.git"
