@@ -220,3 +220,7 @@ target\debug\*
 
 # End of https://www.toptal.com/developers/gitignore/api/rust,python,go
 *.pkl
+
+# data
+*.csv
+*.tsv
