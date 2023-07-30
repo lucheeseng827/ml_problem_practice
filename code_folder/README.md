@@ -25,3 +25,6 @@ ray cluster with llm
 
 ## References
 [ray.io,https://docs.ray.io/en/master/]
+
+[https://www.kaggle.com/code/pmarcelino/comprehensive-data-exploration-with-python]
+[https://www.tensorflow.org/tfx/tutorials/serving/rest_simple]
