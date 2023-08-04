@@ -1,20 +1,22 @@
 import pandas as pd
-from sklearn.model_selection import train_test_split
+from sklearn.feature_selection import SelectKBest, f_regression
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
-from sklearn.feature_selection import SelectKBest, f_regression
+from sklearn.model_selection import train_test_split
 
 # Load the dataset
-df = pd.read_csv('insurance.csv')
+df = pd.read_csv("insurance.csv")
 
 # Let's assume that these are the significant features according to some domain knowledge or feature selection technique
-significant_features = ['age', 'bmi', 'smoker']
+significant_features = ["age", "bmi", "smoker"]
 
 X = df[significant_features]
-y = df['charges']
+y = df["charges"]
 
 # Split the dataset into a training set and a test set
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
 
 # Feature Selection
 selector = SelectKBest(f_regression, k=2)
@@ -31,4 +33,4 @@ lm.fit(X_train_transformed, y_train)
 y_pred = lm.predict(X_test_transformed)
 
 # The mean squared error
-print('Mean squared error: %.2f' % mean_squared_error(y_test, y_pred))
+print("Mean squared error: %.2f" % mean_squared_error(y_test, y_pred))
