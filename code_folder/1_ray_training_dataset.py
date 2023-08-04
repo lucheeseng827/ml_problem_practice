@@ -1,10 +1,8 @@
+import ray
 import torch
 import torch.nn as nn
-
-import ray
-from ray.train.torch import TorchTrainer
 from ray.air.config import ScalingConfig
-
+from ray.train.torch import TorchTrainer
 
 # If using GPUs, set this to True.
 use_gpu = False
