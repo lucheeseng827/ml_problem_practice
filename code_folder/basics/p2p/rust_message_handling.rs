@@ -64,3 +64,4 @@ async fn main() {
 
     let mut listening = false;
     tokio::signal::ctrl_c().await.
+}

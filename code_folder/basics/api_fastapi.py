@@ -45,3 +45,9 @@ def get_openapi_route():
 @app.get(openapi_prefix + "_html")
 def get_openapi_html_route():
     return get_swagger_ui_html(openapi_url=openapi_prefix)
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="127.0.0.1", port=8000)
