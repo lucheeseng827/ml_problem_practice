@@ -1,6 +1,6 @@
-import kubernetes
 import logging
 
+import kubernetes
 
 
 def check_container_network(kube_client, namespace, container_name):
