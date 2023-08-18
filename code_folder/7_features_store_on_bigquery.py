@@ -12,9 +12,11 @@ client = bigquery.Client()
 
 # Define your SQL query to fetch features
 sql_query = """
-SELECT feature_1, feature_2, target_variable
-FROM `your_project_id.your_dataset.your_table`
-WHERE conditions_if_any
+    SELECT
+        feature_1, feature_2, target_variable
+    FROM
+        `your_project_id.your_dataset.your_table`
+    WHERE conditions_if_any
 """
 
 # Execute the query and convert to pandas DataFrame
