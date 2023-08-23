@@ -1,6 +1,8 @@
 import os
 
 
+## make sure you are in the correct directory
+# os.chdir("code_folder/basics/lab/python")
 def create_file(path, content=""):
     with open(path, "w") as file:
         file.write(content)
