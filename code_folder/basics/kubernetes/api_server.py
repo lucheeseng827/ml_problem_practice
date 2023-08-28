@@ -1,7 +1,7 @@
 import requests
 
 # api and  key variables
-api_url = "https://api.example.com/status"  # Replace with the actual API URL
+api_url = "https://api.kubernetes.com/status"  # Replace with the actual API URL
 api_key = "your_api_key"  # Replace with your API key
 
 
