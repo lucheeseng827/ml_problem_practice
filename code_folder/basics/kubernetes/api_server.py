@@ -1,6 +1,11 @@
 import requests
 
 
+# api and  key variables
+api_url = "https://api.kubernetes.com/status"  # Replace with the actual API URL
+api_key = "your_api_key"  # Replace with your API key
+
+
 def check_api_status(api_url, api_key):
     headers = {"Authorization": f"Bearer {api_key}"}
 
@@ -19,7 +24,4 @@ def check_api_status(api_url, api_key):
         print("API server is unreachable.")
 
 
-# Usage example
-api_url = "https://api.example.com/status"  # Replace with the actual API URL
-api_key = "your_api_key"  # Replace with your API key
 check_api_status(api_url, api_key)

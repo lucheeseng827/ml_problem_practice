@@ -1,11 +1,13 @@
+import os
+
 import jax
 import jax.numpy as jnp
-from jax import random
-from flax import linen as nn
-import optax
-import os
-from PIL import Image
 import numpy as np
+import optax
+from flax import linen as nn
+from jax import random
+from PIL import Image
+
 
 # Define the model
 class SimpleCNN(nn.Module):
@@ -17,6 +19,13 @@ class SimpleCNN(nn.Module):
         x = x.reshape((x.shape[0], -1))  # Flatten
         x = nn.Dense(features=10)(x)  # Assuming 10 classes
         return x
+
+
+train_state = SimpleCNN().init(random.PRNGKey(0), jnp.ones([1, 28, 28, 1]))
+
+# Define the optimizer
+optimizer = optax.adam(learning_rate=1e-3)
+
 
 # Load dataset
 def load_images_from_folder(folder):
@@ -47,9 +56,10 @@ def cross_entropy_loss(logits, labels):
 @jax.jit
 def train_step(state, images, labels):
     def loss_fn(params):
-        logits = SimpleCNN().apply({'params': params}, images)
+        logits = SimpleCNN().apply({"params": params}, images)
         loss = cross_entropy_loss(logits, labels)
         return loss
+
     grad_fn = jax.value_and_grad(loss_fn)
     loss, grads = grad_fn(state.params)
     return state.apply_gradients(grads=grads), loss
@@ -58,7 +68,9 @@ def train_step(state, images, labels):
 key = random.PRNGKey(0)
 _, initial_params = SimpleCNN().init_by_shape(key, [((1, 32, 32, 3), jnp.float32)])
 tx = optax.adam(0.001)
-state = train_state.TrainState.create(apply_fn=SimpleCNN().apply, params=initial_params, tx=tx)
+state = train_state.TrainState.create(
+    apply_fn=SimpleCNN().apply, params=initial_params, tx=tx
+)
 
 # Training loop
 num_epochs = 10
