@@ -11,9 +11,7 @@ def test_docker_image(image_name):
         for log in logs:
             print(log.decode().strip())
 
-
-        exit_code = container.wait()['StatusCode']
-
+        exit_code = container.wait()["StatusCode"]
 
         container.remove()
 
@@ -23,6 +21,7 @@ def test_docker_image(image_name):
             print(f"Image test failed with exit code: {exit_code}")
     except docker.errors.APIError as e:
         print(f"Error while running the container: {e}")
+
 
 if __name__ == "__main__":
     image_name = "your-docker-image:tag"

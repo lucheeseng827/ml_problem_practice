@@ -41,16 +41,19 @@ def load_images_from_folder(folder):
         class_idx += 1
     return np.array(images), np.array(labels)
 
+
 images, labels = load_images_from_folder("files")
 
 # Normalize and preprocess the data
 images = images.astype(jnp.float32) / 255.0
 labels = jnp.array(labels, jnp.int32)
 
+
 # Define the loss function
 def cross_entropy_loss(logits, labels):
     one_hot = jax.nn.one_hot(labels, 10)
     return -jnp.mean(jnp.sum(one_hot * jax.nn.log_softmax(logits), axis=-1))
+
 
 # Training step
 @jax.jit
@@ -63,6 +66,7 @@ def train_step(state, images, labels):
     grad_fn = jax.value_and_grad(loss_fn)
     loss, grads = grad_fn(state.params)
     return state.apply_gradients(grads=grads), loss
+
 
 # Initialize model and optimizer
 key = random.PRNGKey(0)

@@ -1,25 +1,31 @@
 import sys
 
-import docker
+from kubernetes import client, config
 
 
-def terminate_container(token):
-    # Initialize a docker client
-    client = docker.from_env()
+def terminate_pod(token):
+    # Load the kube config from the default location (e.g., ~/.kube/config)
+    config.load_kube_config()
 
-    # List all containers
-    containers = client.containers.list()
+    # Initialize the API client
+    v1 = client.CoreV1Api()
 
-    # Find and stop the container with a matching name or ID
-    for container in containers:
-        if token in container.name or token in container.id:
-            container.stop()
+    # List all the pods
+    ret = v1.list_pod_for_all_namespaces(watch=False)
+
+    for pod in ret.items:
+        if token in pod.metadata.name or token in pod.metadata.uid:
             print(
-                f"Stopped container with ID: {container.id} and name: {container.name}"
+                f"Found pod with name: {pod.metadata.name} in namespace: {pod.metadata.namespace}. Terminating..."
+            )
+
+            # Delete the pod
+            v1.delete_namespaced_pod(
+                name=pod.metadata.name, namespace=pod.metadata.namespace
             )
             return
 
-    print(f"No container found for token: {token}")
+    print(f"No pod found for token: {token}")
 
 
 if __name__ == "__main__":
@@ -28,4 +34,4 @@ if __name__ == "__main__":
         sys.exit(1)
 
     token = sys.argv[1]
-    terminate_container(token)
+    terminate_pod(token)

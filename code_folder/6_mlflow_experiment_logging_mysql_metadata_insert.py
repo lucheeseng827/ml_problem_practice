@@ -1,6 +1,7 @@
+import hashlib
+
 import mlflow
 import mlflow.pytorch
-import hashlib
 import mysql.connector
 
 
