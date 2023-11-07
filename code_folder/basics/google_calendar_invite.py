@@ -11,7 +11,6 @@
 # Import the necessary libraries
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
 
 # Set the credentials object with your authorization credentials
 creds = Credentials.from_authorized_user_info()

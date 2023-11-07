@@ -1,4 +1,3 @@
-import json
 
 import boto3
 from lambda_function import lambda_handler

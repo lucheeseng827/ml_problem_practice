@@ -1,4 +1,3 @@
-import os
 
 import dagshub
 import dvc.api

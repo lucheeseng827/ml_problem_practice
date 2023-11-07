@@ -1,4 +1,4 @@
-from confluent_kafka import Consumer, KafkaError, Producer
+from confluent_kafka import Consumer, Producer
 
 
 def topic_exists(broker_url, group_id, topic_name, expected_partitions=None):

@@ -46,7 +46,7 @@ def validate_role(namespace, role_name):
     try:
         rbac_api.read_namespaced_role(name=role_name, namespace=namespace)
         print(f"Role {role_name} exists in namespace {namespace}.")
-    except client.rest.ApiException as e:
+    except client.rest.ApiException:
         print(f"Role {role_name} does not exist in namespace {namespace}.")
 
 
@@ -57,7 +57,7 @@ def validate_cluster_role(cluster_role_name):
     try:
         rbac_api.read_cluster_role(name=cluster_role_name)
         print(f"ClusterRole {cluster_role_name} exists.")
-    except client.rest.ApiException as e:
+    except client.rest.ApiException:
         print(f"ClusterRole {cluster_role_name} does not exist.")
 
 

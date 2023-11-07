@@ -1,7 +1,5 @@
 import torch
-import torchvision
 from torch.quantization import convert, get_default_qconfig, prepare
-from torchvision import models
 
 # Load your model
 model = torch.load("path_to_your_model.pth")
