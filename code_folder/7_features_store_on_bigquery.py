@@ -1,6 +1,5 @@
 import os
 
-import pandas as pd
 from google.cloud import bigquery
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split

@@ -1,4 +1,3 @@
-import json
 
 import jsonschema
 from confluent_kafka import Consumer

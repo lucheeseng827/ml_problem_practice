@@ -27,3 +27,9 @@ For rust version:
 3. move the rust code into the main.rs
 4. cargo add neccessary dependencies(eg: tokio, rusoto_core, rusoto_s3 etc)
 5. cargo build
+
+
+Precommit hooks
+- hooks
+- https://github.com/astral-sh/ruff-pre-commit
+- https://github.com/astral-sh/ruff

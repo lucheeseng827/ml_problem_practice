@@ -24,12 +24,17 @@ git push
 
 import os
 
-import mlflow
-import mlflow.tensorflow
-import tensorflow as tf
-from tensorflow.keras.datasets import mnist
-from tensorflow.keras.layers import Dense, Dropout, Flatten
-from tensorflow.keras.models import Sequential
+import dvc
+
+dvc.remote.add(
+    'myremote',
+    'gs://your-bucket-name/path'
+)
+
+# define load_your_dataset_from_dvc_files function
+# ...
+def load_your_dataset_from_dvc_files():
+    return None
 
 # Pull the dataset from DVC
 os.system("dvc pull path/to/your/dataset.dvc")

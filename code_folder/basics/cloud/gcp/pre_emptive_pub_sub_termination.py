@@ -14,7 +14,6 @@ pip install google-cloud-pubsub google-cloud-compute
 """
 
 
-import os
 import time
 
 from google.cloud import compute_v1, pubsub_v1

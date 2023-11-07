@@ -1,5 +1,3 @@
-import base64
-import json
 import os
 
 from google.auth import compute_engine
@@ -62,7 +60,7 @@ def build_and_push_golden_image(event, context):
                 )
             ),
             timeout={"seconds": 600},
-            logs_bucket=f"my-project-build-logs",
+            logs_bucket="my-project-build-logs",
         ),
     )
 

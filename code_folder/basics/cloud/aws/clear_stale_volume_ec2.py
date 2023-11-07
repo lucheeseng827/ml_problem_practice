@@ -4,7 +4,6 @@
 # The code uses the describe_volumes function to retrieve the volumes
 # The code uses the delete_volume function to delete the volumes
 
-import pprint
 
 import boto3
 

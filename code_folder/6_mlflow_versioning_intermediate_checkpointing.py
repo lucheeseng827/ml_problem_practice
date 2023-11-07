@@ -3,7 +3,6 @@ import tempfile
 
 import mlflow
 import mlflow.tensorflow
-import tensorflow as tf
 from google.cloud import storage
 from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.datasets import mnist

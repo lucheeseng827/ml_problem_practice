@@ -1,5 +1,4 @@
 import numpy as np
-import sklearn
 from sklearn.datasets import make_friedman1
 from sklearn.model_selection import ShuffleSplit, validation_curve
 from sklearn.tree import DecisionTreeRegressor

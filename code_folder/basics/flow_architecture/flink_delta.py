@@ -1,5 +1,4 @@
 from flink.functions.GroupReduceFunction import GroupReduceFunction
-from flink.plan.Environment import create_environment
 from pyflink.dataset import ExecutionEnvironment
 from pyflink.table import BatchTableEnvironment, DataTypes, TableConfig
 

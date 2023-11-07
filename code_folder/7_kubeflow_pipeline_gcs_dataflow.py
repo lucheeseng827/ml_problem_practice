@@ -1,4 +1,3 @@
-import kfp
 from kfp import dsl
 
 

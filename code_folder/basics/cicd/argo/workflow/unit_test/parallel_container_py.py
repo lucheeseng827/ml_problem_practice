@@ -1,7 +1,5 @@
-import json
 import time
 
-import pytest
 import requests
 
 # Define the URL of the Argo API server

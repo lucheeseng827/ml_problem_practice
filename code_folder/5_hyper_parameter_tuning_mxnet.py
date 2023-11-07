@@ -1,5 +1,45 @@
 import mxnet as mx
-import numpy as np
+
+# Define the hyperparameters values
+input_size = 28 * 28
+hidden_size = 100
+num_classes = 10
+learning_rate = 0.001
+num_epochs = 5
+batch_size = 32
+
+# define data iterator
+data_iterator = mx.gluon.data.DataLoader(
+    mx.gluon.data.vision.MNIST("./data", train=True, transform=None),
+    batch_size=batch_size,
+    shuffle=True,
+)
+
+test_iterator = mx.gluon.data.DataLoader(
+    mx.gluon.data.vision.MNIST("./data", train=False, transform=None),
+    batch_size=batch_size,
+    shuffle=False,
+
+)
+
+# define evaluate function
+def evaluate(model, data_iterator):
+    loss_total = 0
+    correct_total = 0
+    total_samples = 0
+
+    for inputs, labels in data_iterator:
+        outputs = model(inputs)
+        loss = loss_fn(outputs, labels)
+        _, predicted = mx.nd.max(outputs, 1)
+
+        loss_total += loss.mean().asnumpy()[0]
+        correct_total += (predicted == labels).sum().asnumpy()[0]
+        total_samples += labels.size
+
+    loss_avg = loss_total / total_samples
+    acc_avg = correct_total / total_samples
+    return loss_avg, acc_avg
 
 
 # Define the model
@@ -17,13 +57,6 @@ class Net(mx.gluon.HybridBlock):
         return x
 
 
-# Define the hyperparameters
-input_size = 28 * 28
-hidden_size = 100
-num_classes = 10
-learning_rate = 0.001
-num_epochs = 5
-batch_size = 32
 
 # Create the model
 model = Net(input_size, hidden_size, num_classes)

@@ -1,4 +1,4 @@
-from confluent_kafka import Consumer, KafkaError
+from confluent_kafka import Consumer
 
 
 def check_kafka_setup(broker_url, group_id):
