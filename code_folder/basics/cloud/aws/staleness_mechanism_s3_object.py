@@ -42,4 +42,4 @@ def lambda_handler(event, context):
         )
         print(f"Updated last_updated metadata of {source_key} to {now}")
     else:
-        print(f"MD5 hashes are different, not updating metadata")
+        print("MD5 hashes are different, not updating metadata")

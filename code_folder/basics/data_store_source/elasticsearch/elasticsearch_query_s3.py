@@ -43,7 +43,7 @@ def query_elasticsearch(from_page):
             if not hits:
                 return None
             return hits
-        except es_exceptions.ConnectionError as e:
+        except es_exceptions.ConnectionError:
             retries += 1
             print(f"Connection error, retry {retries}/{MAX_RETRIES}")
             sleep(DELAY_BETWEEN_RETRIES)

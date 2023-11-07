@@ -2,7 +2,6 @@ from azure.identity import DefaultAzureCredential
 from azure.mgmt.datafactory import DataFactoryManagementClient
 from azure.mgmt.datafactory.models import *
 from azure.synapse.accesscontrol import AccessControlClient
-from azure.synapse.artifacts import ArtifactsClient
 
 # Set up the Azure Synapse Access Control client
 credential = DefaultAzureCredential()

@@ -1,6 +1,4 @@
 import kfp.dsl as dsl
-import kfp.gcp as gcp
-import kfp.onprem as onprem
 
 
 # Define the PyTorch training component

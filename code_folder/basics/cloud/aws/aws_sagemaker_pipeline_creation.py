@@ -1,6 +1,5 @@
 import boto3
 from sagemaker import get_execution_role
-from sagemaker.model import Model
 from sagemaker.pipeline import PipelineModel
 from sagemaker.processing import ProcessingInput, ProcessingOutput
 from sagemaker.sklearn.processing import SKLearnProcessor
