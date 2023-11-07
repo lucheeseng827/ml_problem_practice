@@ -8,7 +8,6 @@ repos:
     -   id: end-of-file-fixer
     -   id: trailing-whitespace
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    # Ruff version.
     rev: v0.1.4
     hooks:
     -   id: ruff
@@ -24,12 +23,3 @@ repos:
     rev: 5.12.0
     hooks:
     -   id: isort
-# -   repo: https://github.com/pycqa/pylint
-#     rev: v3.0.0a6
-#     hooks:
-#     -   id: pylint
-#         args:
-#         - --errors-only
-#         # ignore rule E0401
-#         - --disable=E0401
-#         # - --disable=missing-docstring
