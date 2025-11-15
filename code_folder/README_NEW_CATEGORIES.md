@@ -1,12 +1,12 @@
-# New ML Practice Categories (10-19)
+# New ML Practice Categories (10-20)
 
-This document describes **42 new machine learning practice examples** added to the repository, organized into 10 comprehensive categories covering advanced ML topics.
+This document describes **48 new machine learning practice examples** added to the repository, organized into 11 comprehensive categories covering advanced ML topics.
 
 ## 📊 Overview
 
-Total new examples: **42 Python scripts**
-Categories added: **10 (Categories 10-19)**
-Focus areas: Time Series, Computer Vision, NLP, Recommender Systems, Anomaly Detection, Interpretability, AutoML, Reinforcement Learning, Multi-Modal, and MLOps
+Total new examples: **48 Python scripts**
+Categories added: **11 (Categories 10-20)**
+Focus areas: Time Series, Computer Vision, NLP, Recommender Systems, Anomaly Detection, Interpretability, AutoML, Reinforcement Learning, Multi-Modal, MLOps, and **Ensemble Methods**
 
 ---
 
@@ -312,6 +312,53 @@ Focus areas: Time Series, Computer Vision, NLP, Recommender Systems, Anomaly Det
 
 ---
 
+## Category 20: Ensemble Methods (6 files)
+
+### 🎭 Files:
+1. **20_sklearn_random_forest_bagging.py**
+   - Random Forest classification & regression
+   - Bagging with decision trees
+   - Feature importance from ensembles
+   - Out-of-bag error estimation
+   - **Use cases**: General-purpose ML, feature selection, robust predictions
+
+2. **20_xgboost_gradient_boosting.py**
+   - XGBoost for classification & regression
+   - Learning rate and regularization
+   - Early stopping
+   - Handling imbalanced data
+   - **Use cases**: Kaggle competitions, structured data, high performance
+
+3. **20_lightgbm_advanced_boosting.py**
+   - LightGBM leaf-wise tree growth
+   - Categorical feature handling
+   - DART boosting with dropout
+   - Speed optimization
+   - **Use cases**: Large-scale datasets, production systems, fast training
+
+4. **20_sklearn_adaboost.py**
+   - AdaBoost adaptive boosting
+   - Weak learner concept
+   - Sample weight adaptation
+   - Convergence analysis
+   - **Use cases**: Binary classification, face detection, interpretable models
+
+5. **20_sklearn_stacking_blending.py**
+   - Stacking with cross-validation
+   - Blending with hold-out set
+   - Multi-level stacking
+   - Meta-learner selection
+   - **Use cases**: Kaggle competitions, combining diverse models
+
+6. **20_sklearn_voting_ensembles.py**
+   - Hard voting (majority vote)
+   - Soft voting (probability averaging)
+   - Weighted voting
+   - Decision boundary visualization
+   - **Use cases**: Simple ensembling, variance reduction
+
+---
+
 ## 🎯 Quick Start
 
 ### Run any example:
@@ -326,6 +373,7 @@ python code_folder/12_sklearn_text_classification_tfidf.py
 ```bash
 pip install torch torchvision scikit-learn tensorflow pandas numpy matplotlib seaborn
 pip install statsmodels prophet scipy opencv-python
+pip install xgboost lightgbm  # For ensemble methods (Category 20)
 ```
 
 ---
@@ -339,7 +387,7 @@ pip install statsmodels prophet scipy opencv-python
 - Move to Category 14 (anomaly detection)
 
 **Intermediate**:
-- Categories 11, 13 (deep learning applications)
+- Categories 11, 13, 20 (deep learning applications, ensemble methods)
 - Category 15 (interpretability)
 
 **Advanced**:
@@ -360,6 +408,7 @@ pip install statsmodels prophet scipy opencv-python
 - **Reinforcement Learning**: Q-Learning, DQN, PPO
 - **Multi-Modal**: CLIP, Whisper, Stable Diffusion, GNNs
 - **MLOps**: Serving, Monitoring, A/B Testing, Drift Detection
+- **Ensemble Methods**: Random Forest, XGBoost, LightGBM, AdaBoost, Stacking, Voting
 
 ---
 
