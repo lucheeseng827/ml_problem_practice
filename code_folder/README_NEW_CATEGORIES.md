@@ -4,13 +4,55 @@ This document describes **48 new machine learning practice examples** added to t
 
 ## 📊 Overview
 
-Total new examples: **48 Python scripts**
-Categories added: **11 (Categories 10-20)**
-Focus areas: Time Series, Computer Vision, NLP, Recommender Systems, Anomaly Detection, Interpretability, AutoML, Reinforcement Learning, Multi-Modal, MLOps, and **Ensemble Methods**
+**Total new examples**: 48 Python scripts
+**Categories added**: 11 (Categories 10-20)
+**Focus areas**: Time Series, Computer Vision, NLP, Recommender Systems, Anomaly Detection, Interpretability, AutoML, Reinforcement Learning, Multi-Modal, MLOps, and **Ensemble Methods**
+
+### 📂 Directory Structure
+
+All examples are located in: `/code_folder/`
+
+```
+ml_problem_practice/
+└── code_folder/
+    ├── 10_*.py  # Time Series Forecasting (4 files)
+    ├── 11_*.py  # Computer Vision (4 files)
+    ├── 12_*.py  # NLP (5 files)
+    ├── 13_*.py  # Recommender Systems (4 files)
+    ├── 14_*.py  # Anomaly Detection (4 files)
+    ├── 15_*.py  # Model Interpretability (4 files)
+    ├── 16_*.py  # AutoML (4 files)
+    ├── 17_*.py  # Reinforcement Learning (4 files)
+    ├── 18_*.py  # Multi-Modal Learning (4 files)
+    ├── 19_*.py  # MLOps & Production (5 files)
+    ├── 20_*.py  # Ensemble Methods (6 files)
+    └── README_NEW_CATEGORIES.md  # This file
+```
+
+### 🎯 Naming Convention
+
+Files follow the pattern: `<category_number>_<framework>_<topic>.py`
+
+**Examples**:
+- `10_sklearn_time_series_arima.py` - Category 10, scikit-learn, ARIMA
+- `11_torch_object_detection_yolo.py` - Category 11, PyTorch, YOLO
+- `20_xgboost_gradient_boosting.py` - Category 20, XGBoost, gradient boosting
 
 ---
 
 ## Category 10: Time Series Forecasting (4 files)
+
+### 📖 Background
+
+Time series forecasting is the task of predicting future values based on previously observed values ordered in time. Unlike traditional ML problems, time series data has temporal dependencies where order matters. Applications include stock price prediction, weather forecasting, sales forecasting, and demand planning.
+
+**Key Concepts**: Stationarity, seasonality, trends, autocorrelation, ARIMA models, recurrent networks, attention mechanisms
+
+**Prerequisites**: Basic statistics, understanding of sequences, pandas for time series manipulation
+
+**Problem Type**: Regression (continuous values over time)
+
+**Directory**: `code_folder/10_*.py`
 
 ### 📈 Files:
 1. **10_sklearn_time_series_arima.py**
@@ -41,6 +83,18 @@ Focus areas: Time Series, Computer Vision, NLP, Recommender Systems, Anomaly Det
 
 ## Category 11: Computer Vision (4 files)
 
+### 📖 Background
+
+Computer Vision enables machines to interpret and understand visual information from images and videos. This category covers core CV tasks including object detection (finding objects in images), image segmentation (pixel-level classification), transfer learning (leveraging pretrained models), and image preprocessing pipelines.
+
+**Key Concepts**: Convolutional Neural Networks (CNNs), bounding boxes, segmentation masks, feature extraction, data augmentation, transfer learning
+
+**Prerequisites**: Basic deep learning, NumPy arrays, understanding of images as tensors
+
+**Problem Types**: Object detection, semantic segmentation, image classification
+
+**Directory**: `code_folder/11_*.py`
+
 ### 👁️ Files:
 1. **11_torch_object_detection_yolo.py**
    - YOLO architecture
@@ -69,6 +123,18 @@ Focus areas: Time Series, Computer Vision, NLP, Recommender Systems, Anomaly Det
 ---
 
 ## Category 12: Natural Language Processing (5 files)
+
+### 📖 Background
+
+Natural Language Processing (NLP) enables machines to understand, interpret, and generate human language. This category covers text classification, sentiment analysis, named entity recognition, and transformer-based models. NLP is foundational for chatbots, translation, content analysis, and information extraction.
+
+**Key Concepts**: Tokenization, embeddings, TF-IDF, recurrent networks (LSTM), transformers, attention mechanisms, BERT, sequence-to-sequence models
+
+**Prerequisites**: Basic text processing, understanding of sequences, familiarity with word vectors
+
+**Problem Types**: Classification, sequence labeling (NER), language modeling
+
+**Directory**: `code_folder/12_*.py`
 
 ### 📝 Files:
 1. **12_sklearn_text_classification_tfidf.py**
@@ -105,6 +171,18 @@ Focus areas: Time Series, Computer Vision, NLP, Recommender Systems, Anomaly Det
 
 ## Category 13: Recommender Systems (4 files)
 
+### 📖 Background
+
+Recommender Systems predict user preferences and suggest items they might like. This category covers collaborative filtering (finding similar users/items), matrix factorization (decomposing user-item interactions), and deep learning approaches. Recommenders power Netflix, Amazon, Spotify, and YouTube.
+
+**Key Concepts**: Collaborative filtering, matrix factorization (SVD), implicit/explicit feedback, cold-start problem, embedding layers, alternating least squares
+
+**Prerequisites**: Linear algebra, understanding of sparse matrices, basic neural networks
+
+**Problem Types**: Rating prediction, ranking, recommendation
+
+**Directory**: `code_folder/13_*.py`
+
 ### 🎯 Files:
 1. **13_sklearn_collaborative_filtering.py**
    - User-based & item-based CF
@@ -133,6 +211,18 @@ Focus areas: Time Series, Computer Vision, NLP, Recommender Systems, Anomaly Det
 ---
 
 ## Category 14: Anomaly Detection (4 files)
+
+### 📖 Background
+
+Anomaly Detection identifies unusual patterns that don't conform to expected behavior. Unlike supervised learning, anomaly detection often works with unlabeled data, learning what "normal" looks like and flagging deviations. Critical for fraud detection, network security, and quality control.
+
+**Key Concepts**: Unsupervised learning, outlier detection, reconstruction error, isolation, density estimation, one-class classification
+
+**Prerequisites**: Statistics, understanding of distributions, basic ML concepts
+
+**Problem Types**: Unsupervised anomaly detection, novelty detection
+
+**Directory**: `code_folder/14_*.py`
 
 ### 🔍 Files:
 1. **14_sklearn_isolation_forest.py**
@@ -163,6 +253,19 @@ Focus areas: Time Series, Computer Vision, NLP, Recommender Systems, Anomaly Det
 
 ## Category 15: Model Interpretability (4 files)
 
+
+### 📖 Background
+
+Model Interpretability explains how ML models make decisions. As models become more complex (deep learning, ensembles), understanding their predictions becomes crucial for trust, debugging, and regulatory compliance. This category covers tools like SHAP and LIME for black-box interpretation.
+
+**Key Concepts**: SHAP values, LIME, feature importance, partial dependence plots, glass-box vs black-box models, model-agnostic methods
+
+**Prerequisites**: Understanding of ML models, basic statistics
+
+**Problem Types**: Model explanation, feature attribution, interpretability
+
+**Directory**: `code_folder/15_*.py`
+
 ### 🔬 Files:
 1. **15_shap_model_interpretation.py**
    - SHAP values (Shapley values)
@@ -191,6 +294,19 @@ Focus areas: Time Series, Computer Vision, NLP, Recommender Systems, Anomaly Det
 ---
 
 ## Category 16: AutoML (4 files)
+
+
+### 📖 Background
+
+AutoML (Automated Machine Learning) automates the process of model selection, hyperparameter tuning, and feature engineering. Instead of manually trying different algorithms, AutoML systematically searches for the best approach. Ideal for rapid prototyping and non-expert users.
+
+**Key Concepts**: Hyperparameter optimization, neural architecture search (NAS), Bayesian optimization, genetic algorithms, model selection
+
+**Prerequisites**: Understanding of ML pipelines, basic ML algorithms
+
+**Problem Types**: Meta-learning, optimization, pipeline automation
+
+**Directory**: `code_folder/16_*.py`
 
 ### 🤖 Files:
 1. **16_autosklearn_automated_ml.py**
@@ -221,6 +337,19 @@ Focus areas: Time Series, Computer Vision, NLP, Recommender Systems, Anomaly Det
 
 ## Category 17: Reinforcement Learning (4 files)
 
+
+### 📖 Background
+
+Reinforcement Learning (RL) trains agents to make sequential decisions by rewarding desired behaviors. Unlike supervised learning, there's no labeled data—agents learn through trial and error. RL powers game AI (AlphaGo), robotics, and autonomous systems.
+
+**Key Concepts**: Agent-environment interaction, rewards, Q-learning, policy gradients, value functions, exploration vs exploitation
+
+**Prerequisites**: Basic probability, understanding of Markov Decision Processes (helpful but not required)
+
+**Problem Types**: Sequential decision making, control, game playing
+
+**Directory**: `code_folder/17_*.py`
+
 ### 🎮 Files:
 1. **17_gym_q_learning.py**
    - Q-learning algorithm
@@ -250,6 +379,19 @@ Focus areas: Time Series, Computer Vision, NLP, Recommender Systems, Anomaly Det
 
 ## Category 18: Multi-Modal Learning (4 files)
 
+
+### 📖 Background
+
+Multi-Modal Learning combines different types of data (images, text, audio, graphs) to create richer representations. CLIP connects vision and language, Whisper handles speech, Stable Diffusion generates images from text, and GNNs process graph-structured data like social networks.
+
+**Key Concepts**: Joint embeddings, cross-modal learning, graph neural networks, diffusion models, attention across modalities
+
+**Prerequisites**: Understanding of both vision and NLP, basic graph theory for GNNs
+
+**Problem Types**: Cross-modal retrieval, text-to-image, graph classification
+
+**Directory**: `code_folder/18_*.py`
+
 ### 🌐 Files:
 1. **18_clip_image_text_retrieval.py**
    - Vision-language models
@@ -278,6 +420,19 @@ Focus areas: Time Series, Computer Vision, NLP, Recommender Systems, Anomaly Det
 ---
 
 ## Category 19: MLOps & Production (5 files)
+
+
+### 📖 Background
+
+MLOps brings DevOps practices to machine learning, focusing on deploying, monitoring, and maintaining ML systems in production. This includes model serving, A/B testing, monitoring for drift, and ensuring models remain accurate over time. Essential for production ML systems.
+
+**Key Concepts**: Model serving, API design, monitoring, A/B testing, data drift, feature stores, CI/CD for ML
+
+**Prerequisites**: Basic software engineering, REST APIs, understanding of production systems
+
+**Problem Types**: Deployment, monitoring, operations
+
+**Directory**: `code_folder/19_*.py`
 
 ### 🚀 Files:
 1. **19_model_serving_fastapi.py**
@@ -313,6 +468,19 @@ Focus areas: Time Series, Computer Vision, NLP, Recommender Systems, Anomaly Det
 ---
 
 ## Category 20: Ensemble Methods (6 files)
+
+
+### 📖 Background
+
+Ensemble Methods combine multiple models to produce better predictions than any individual model. By aggregating predictions from diverse models, ensembles reduce overfitting and improve generalization. Random Forests, XGBoost, and Stacking dominate Kaggle competitions and production systems.
+
+**Key Concepts**: Bagging (bootstrap aggregating), boosting (sequential learning), stacking (meta-learning), voting, weak learners, variance reduction
+
+**Prerequisites**: Understanding of decision trees, basic ML algorithms, overfitting vs underfitting
+
+**Problem Types**: Classification, regression (applies to most supervised tasks)
+
+**Directory**: `code_folder/20_*.py`
 
 ### 🎭 Files:
 1. **20_sklearn_random_forest_bagging.py**
