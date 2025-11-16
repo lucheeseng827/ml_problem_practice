@@ -1,0 +1,27 @@
+# Example Terraform Variables
+# Copy this file to terraform.tfvars and customize
+
+aws_region   = "us-east-1"
+environment  = "dev"
+project_name = "ml-practice"
+
+# SageMaker
+sagemaker_notebook_instance_type = "ml.t3.medium"
+sagemaker_training_instance_type = "ml.m5.large"
+
+# Athena
+athena_workgroup = "ml-practice-workgroup"
+athena_database  = "ml_practice"
+
+# Redshift
+redshift_cluster_type    = "single-node"
+redshift_node_type       = "dc2.large"
+redshift_number_of_nodes = 1
+redshift_master_username = "admin"
+redshift_database_name   = "ml_practice"
+
+# Additional tags
+additional_tags = {
+  CostCenter = "ML-Engineering"
+  Owner      = "Data-Science-Team"
+}

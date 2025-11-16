@@ -1,0 +1,58 @@
+FROM jupyter/datascience-notebook:latest
+
+# Switch to root to install system dependencies
+USER root
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    git \
+    vim \
+    curl \
+    wget \
+    graphviz \
+    libgraphviz-dev \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create directories
+RUN mkdir -p /home/jovyan/work/notebooks \
+    /home/jovyan/work/data \
+    /home/jovyan/work/models \
+    /home/jovyan/work/code_folder
+
+# Switch to jovyan user for pip installations
+USER $NB_UID
+
+# Copy requirements file
+COPY requirements.txt /tmp/requirements.txt
+
+# Install Python packages
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
+
+# Download spaCy models
+RUN python -m spacy download en_core_web_sm
+
+# Install Jupyter extensions
+RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager
+
+# Create DuckDB directory
+RUN mkdir -p /home/jovyan/work/duckdb
+
+# Set working directory
+WORKDIR /home/jovyan/work
+
+# Switch back to root for final setup
+USER root
+
+# Set permissions
+RUN chown -R $NB_UID:$NB_GID /home/jovyan/work
+
+# Switch back to jovyan
+USER $NB_UID
+
+# Expose Jupyter port
+EXPOSE 8888
+
+# Start Jupyter Lab
+CMD ["start-notebook.sh", "--NotebookApp.token=''", "--NotebookApp.password=''"]

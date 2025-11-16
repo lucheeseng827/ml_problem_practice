@@ -1,0 +1,135 @@
+# Core ML Libraries
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.10.0
+scikit-learn>=1.3.0
+
+# Deep Learning Frameworks
+torch>=2.0.0
+torchvision>=0.15.0
+tensorflow>=2.13.0
+keras>=2.13.0
+
+# Gradient Boosting
+xgboost>=2.0.0
+lightgbm>=4.0.0
+catboost>=1.2.0
+
+# Time Series
+statsmodels>=0.14.0
+prophet>=1.1.0
+pmdarima>=2.0.0
+
+# Computer Vision
+opencv-python>=4.8.0
+Pillow>=10.0.0
+albumentations>=1.3.0
+ultralytics>=8.0.0  # YOLO
+timm>=0.9.0  # PyTorch Image Models
+
+# NLP
+transformers>=4.30.0
+spacy>=3.6.0
+nltk>=3.8.0
+gensim>=4.3.0
+sentencepiece>=0.1.99
+
+# Recommender Systems
+surprise>=0.1
+implicit>=0.7.0
+
+# Anomaly Detection
+pyod>=1.1.0
+
+# Model Interpretability
+shap>=0.42.0
+lime>=0.2.0
+
+# AutoML
+optuna>=3.3.0
+auto-sklearn>=0.15.0
+tpot>=0.12.0
+
+# Reinforcement Learning
+gymnasium>=0.29.0
+stable-baselines3>=2.0.0
+ray[rllib]>=2.6.0
+
+# Graph Neural Networks
+torch-geometric>=2.3.0
+networkx>=3.1
+
+# Database & Data Storage
+duckdb>=0.9.0
+psycopg2-binary>=2.9.0
+sqlalchemy>=2.0.0
+pymongo>=4.5.0
+
+# Data Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+plotly>=5.15.0
+bokeh>=3.2.0
+
+# MLOps & Model Serving
+mlflow>=2.6.0
+fastapi>=0.100.0
+uvicorn>=0.23.0
+streamlit>=1.25.0
+gradio>=3.40.0
+
+# Data Processing
+pyarrow>=13.0.0
+polars>=0.19.0
+datatable>=1.0.0
+
+# Model Monitoring
+evidently>=0.4.0
+prometheus-client>=0.17.0
+
+# Cloud SDKs (AWS)
+boto3>=1.28.0
+sagemaker>=2.175.0
+
+# Audio/Multimodal
+librosa>=0.10.0
+soundfile>=0.12.0
+whisper>=1.0  # OpenAI Whisper
+diffusers>=0.20.0  # Stable Diffusion
+
+# Utilities
+tqdm>=4.65.0
+joblib>=1.3.0
+pyyaml>=6.0.0
+python-dotenv>=1.0.0
+jupyterlab>=4.0.0
+ipywidgets>=8.1.0
+notebook>=7.0.0
+
+# Development & Testing
+pytest>=7.4.0
+black>=23.7.0
+ruff>=0.0.280
+mypy>=1.5.0
+pre-commit>=3.3.0
+
+# Experiment Tracking
+wandb>=0.15.0
+tensorboard>=2.13.0
+
+# Feature Engineering
+featuretools>=1.28.0
+category-encoders>=2.6.0
+
+# Time Series Specific
+sktime>=0.22.0
+tslearn>=0.6.0
+
+# Web Scraping & APIs (for data collection)
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+aiohttp>=3.8.0
+
+# Jupyter Extensions
+jupyterlab-git>=0.41.0
+jupyterlab-lsp>=4.2.0
