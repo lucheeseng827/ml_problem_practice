@@ -76,6 +76,38 @@ services:
     profiles:
       - tools
 
+  # MLflow Tracking Server
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.9.2
+    container_name: ml-practice-mlflow
+    ports:
+      - "5000:5000"
+    volumes:
+      - mlflow-data:/mlflow
+      - ./models:/mlflow/models
+    environment:
+      - MLFLOW_BACKEND_STORE_URI=postgresql://${POSTGRES_USER:-mluser}:${POSTGRES_PASSWORD:-mlpassword}@postgres:5432/${POSTGRES_DB:-ml_practice}
+      - MLFLOW_DEFAULT_ARTIFACT_ROOT=/mlflow/artifacts
+    env_file:
+      - .env
+    networks:
+      - ml-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    command: >
+      mlflow server
+      --backend-store-uri postgresql://${POSTGRES_USER:-mluser}:${POSTGRES_PASSWORD:-mlpassword}@postgres:5432/${POSTGRES_DB:-ml_practice}
+      --default-artifact-root /mlflow/artifacts
+      --host 0.0.0.0
+      --port 5000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
 networks:
   ml-network:
     driver: bridge
@@ -86,4 +118,6 @@ volumes:
   pgadmin-data:
     driver: local
   jupyter-config:
+    driver: local
+  mlflow-data:
     driver: local

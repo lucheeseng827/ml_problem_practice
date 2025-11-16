@@ -1,10 +1,10 @@
 # New ML Practice Categories (10-20)
 
-This document describes **48 new machine learning practice examples** added to the repository, organized into 11 comprehensive categories covering advanced ML topics.
+This document describes **51 new machine learning practice examples** added to the repository, organized into 11 comprehensive categories covering advanced ML topics.
 
 ## 📊 Overview
 
-**Total new examples**: 48 Python scripts
+**Total new examples**: 51 Python scripts
 **Categories added**: 11 (Categories 10-20)
 **Focus areas**: Time Series, Computer Vision, NLP, Recommender Systems, Anomaly Detection, Interpretability, AutoML, Reinforcement Learning, Multi-Modal, MLOps, and **Ensemble Methods**
 
@@ -24,7 +24,7 @@ ml_problem_practice/
     ├── 16_*.py  # AutoML (4 files)
     ├── 17_*.py  # Reinforcement Learning (4 files)
     ├── 18_*.py  # Multi-Modal Learning (4 files)
-    ├── 19_*.py  # MLOps & Production (5 files)
+    ├── 19_*.py  # MLOps & Production (8 files) ⭐ +3 NEW
     ├── 20_*.py  # Ensemble Methods (6 files)
     └── README_NEW_CATEGORIES.md  # This file
 ```
@@ -419,28 +419,33 @@ Multi-Modal Learning combines different types of data (images, text, audio, grap
 
 ---
 
-## Category 19: MLOps & Production (5 files)
+## Category 19: MLOps & Production (8 files)
 
 
 ### 📖 Background
 
-MLOps brings DevOps practices to machine learning, focusing on deploying, monitoring, and maintaining ML systems in production. This includes model serving, A/B testing, monitoring for drift, and ensuring models remain accurate over time. Essential for production ML systems.
+MLOps brings DevOps practices to machine learning, focusing on deploying, monitoring, and maintaining ML systems in production. This includes model serving, A/B testing, monitoring for drift, and ensuring models remain accurate over time. Also covers experiment tracking, model versioning, data validation, and cloud deployment. Essential for production ML systems.
 
-**Key Concepts**: Model serving, API design, monitoring, A/B testing, data drift, feature stores, CI/CD for ML
+**Key Concepts**: Model serving, API design, monitoring, A/B testing, data drift, feature stores, CI/CD for ML, experiment tracking, model registry, data validation, cloud deployment (SageMaker)
 
-**Prerequisites**: Basic software engineering, REST APIs, understanding of production systems
+**Prerequisites**: Basic software engineering, REST APIs, understanding of production systems, Docker, cloud platforms (AWS)
 
-**Problem Types**: Deployment, monitoring, operations
+**Problem Types**: Deployment, monitoring, operations, model lifecycle management, data quality
 
 **Directory**: `code_folder/19_*.py`
 
+**Infrastructure**: See [MLOPS_INFRASTRUCTURE.md](../MLOPS_INFRASTRUCTURE.md) for local (Docker Compose + MLflow) and cloud (Terraform + SageMaker) setup.
+
 ### 🚀 Files:
+
+#### Model Serving & APIs
 1. **19_model_serving_fastapi.py**
    - REST API for models
    - Request/response handling
    - Health checks
    - **Use cases**: Production model serving
 
+#### Monitoring & Testing
 2. **19_model_monitoring_prometheus.py**
    - Metrics collection
    - Latency tracking
@@ -453,17 +458,50 @@ MLOps brings DevOps practices to machine learning, focusing on deploying, monito
    - Statistical analysis
    - **Use cases**: Model comparison, gradual rollouts
 
-4. **19_feature_engineering_pipeline.py**
-   - Production feature engineering
-   - Consistent transformations
-   - Pipeline serialization
-   - **Use cases**: Data pipelines, feature stores
-
-5. **19_data_drift_detection.py**
+4. **19_data_drift_detection.py**
    - Distribution shift detection
    - Statistical tests (KS test)
    - Trigger retraining
    - **Use cases**: Data quality monitoring
+
+5. **19_great_expectations_data_validation.py** ⭐ NEW
+   - Data validation framework
+   - Expectation suites
+   - Quality reports
+   - CI/CD integration
+   - **Use cases**: Data testing, pipeline validation
+
+#### Model Lifecycle Management
+6. **19_mlflow_model_registry.py** ⭐ NEW
+   - Experiment tracking
+   - Model versioning
+   - Stage transitions (Staging → Production)
+   - Model registry
+   - **Use cases**: Model lifecycle, version control
+   - **Requires**: MLflow server (run `make up` to start)
+
+7. **19_bentoml_model_packaging.py** ⭐ NEW
+   - Model packaging
+   - API generation
+   - Docker containerization
+   - Multi-cloud deployment
+   - **Use cases**: Model packaging, deployment
+
+#### Cloud Deployment
+8. **19_sagemaker_training_deployment.py** ⭐ NEW
+   - AWS SageMaker workflow
+   - Training jobs at scale
+   - Model deployment
+   - Endpoint creation
+   - **Use cases**: Cloud ML, scalable training
+   - **Requires**: AWS account, credentials
+
+#### Feature Engineering
+9. **19_feature_engineering_pipeline.py**
+   - Production feature engineering
+   - Consistent transformations
+   - Pipeline serialization
+   - **Use cases**: Data pipelines, feature stores
 
 ---
 

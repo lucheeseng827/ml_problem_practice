@@ -38,6 +38,7 @@ up:
 	@echo "Access points:"
 	@echo "  - Jupyter Lab: http://localhost:8888 (token: jupyter)"
 	@echo "  - PostgreSQL: localhost:5432 (user: mluser, password: mlpassword)"
+	@echo "  - MLflow: http://localhost:5000"
 	@echo ""
 	@echo "Run 'make logs' to view logs"
 
@@ -50,6 +51,7 @@ up-full:
 	@echo "Access points:"
 	@echo "  - Jupyter Lab: http://localhost:8888 (token: jupyter)"
 	@echo "  - PostgreSQL: localhost:5432 (user: mluser, password: mlpassword)"
+	@echo "  - MLflow: http://localhost:5000"
 	@echo "  - PgAdmin: http://localhost:5050 (email: admin@mlpractice.local, password: admin)"
 
 # Stop all services
@@ -87,6 +89,9 @@ logs-jupyter:
 logs-postgres:
 	docker-compose logs -f postgres
 
+logs-mlflow:
+	docker-compose logs -f mlflow
+
 # Build/rebuild containers
 build:
 	@echo "Building containers..."
@@ -110,6 +115,10 @@ jupyter-shell:
 # Access PostgreSQL shell
 postgres-shell:
 	docker exec -it ml-practice-postgres psql -U mluser -d ml_practice
+
+# Access MLflow container shell
+mlflow-shell:
+	docker exec -it ml-practice-mlflow sh
 
 # Backup PostgreSQL database
 backup-db:
@@ -163,7 +172,7 @@ help:
 	@echo "  make setup          - Initial setup (creates .env file)"
 	@echo ""
 	@echo "Docker Services:"
-	@echo "  make up             - Start Jupyter + PostgreSQL"
+	@echo "  make up             - Start Jupyter + PostgreSQL + MLflow"
 	@echo "  make up-full        - Start all services including PgAdmin"
 	@echo "  make down           - Stop all services"
 	@echo "  make down-volumes   - Stop services and remove volumes (deletes data)"
@@ -176,10 +185,12 @@ help:
 	@echo "  make logs           - View logs for all services"
 	@echo "  make logs-jupyter   - View Jupyter logs"
 	@echo "  make logs-postgres  - View PostgreSQL logs"
+	@echo "  make logs-mlflow    - View MLflow logs"
 	@echo ""
 	@echo "Shell Access:"
 	@echo "  make jupyter-shell  - Access Jupyter container shell"
 	@echo "  make postgres-shell - Access PostgreSQL shell"
+	@echo "  make mlflow-shell   - Access MLflow container shell"
 	@echo ""
 	@echo "Database Operations:"
 	@echo "  make backup-db      - Backup PostgreSQL database"
@@ -196,8 +207,8 @@ help:
 	@echo "  make precommit-update  - Update pre-commit hooks"
 	@echo ""
 
-.PHONY: setup up up-full down down-volumes restart logs logs-jupyter logs-postgres \
-        build build-up status jupyter-shell postgres-shell backup-db restore-db \
+.PHONY: setup up up-full down down-volumes restart logs logs-jupyter logs-postgres logs-mlflow \
+        build build-up status jupyter-shell postgres-shell mlflow-shell backup-db restore-db \
         clean run-script install-package help \
         precommit-all precommit-init precommit-update precommit-install
 

@@ -23,7 +23,50 @@ variable "project_name" {
   default     = "ml-practice"
 }
 
+# =====================================
+# S3 Variables
+# =====================================
+
+variable "enable_lifecycle_rules" {
+  description = "Enable S3 lifecycle rules"
+  type        = bool
+  default     = true
+}
+
+variable "s3_archive_after_days" {
+  description = "Days before archiving training data to Glacier"
+  type        = number
+  default     = 90
+}
+
+variable "s3_model_archive_after_days" {
+  description = "Days before archiving models to Glacier IR"
+  type        = number
+  default     = 180
+}
+
+variable "s3_expire_after_days" {
+  description = "Days before deleting archived data"
+  type        = number
+  default     = 365
+}
+
+variable "enable_s3_access_logging" {
+  description = "Enable S3 access logging"
+  type        = bool
+  default     = false
+}
+
+# =====================================
 # SageMaker Variables
+# =====================================
+
+variable "create_sagemaker_notebook" {
+  description = "Create SageMaker notebook instance"
+  type        = bool
+  default     = false  # Default false to avoid costs
+}
+
 variable "sagemaker_notebook_instance_type" {
   description = "SageMaker notebook instance type"
   type        = string
@@ -34,6 +77,90 @@ variable "sagemaker_training_instance_type" {
   description = "SageMaker training instance type"
   type        = string
   default     = "ml.m5.large"
+}
+
+variable "create_model_registry" {
+  description = "Create SageMaker model registry"
+  type        = bool
+  default     = true
+}
+
+variable "create_sagemaker_endpoint" {
+  description = "Create SageMaker endpoint"
+  type        = bool
+  default     = false  # Default false to avoid costs
+}
+
+variable "sagemaker_endpoint_instance_type" {
+  description = "SageMaker endpoint instance type"
+  type        = string
+  default     = "ml.m5.large"
+}
+
+variable "sagemaker_endpoint_initial_instance_count" {
+  description = "Initial instance count for SageMaker endpoint"
+  type        = number
+  default     = 1
+}
+
+variable "sagemaker_enable_serverless" {
+  description = "Enable serverless inference"
+  type        = bool
+  default     = false
+}
+
+variable "enable_data_capture" {
+  description = "Enable data capture for model monitoring"
+  type        = bool
+  default     = true
+}
+
+variable "data_capture_sampling_percentage" {
+  description = "Percentage of requests to capture (0-100)"
+  type        = number
+  default     = 100
+}
+
+variable "create_feature_store" {
+  description = "Create SageMaker feature store"
+  type        = bool
+  default     = false
+}
+
+variable "enable_sagemaker_monitoring" {
+  description = "Enable CloudWatch monitoring for SageMaker"
+  type        = bool
+  default     = true
+}
+
+variable "log_retention_days" {
+  description = "CloudWatch log retention period (days)"
+  type        = number
+  default     = 7
+}
+
+variable "enable_sagemaker_autoscaling" {
+  description = "Enable auto-scaling for SageMaker endpoint"
+  type        = bool
+  default     = true
+}
+
+variable "sagemaker_autoscaling_min_capacity" {
+  description = "Minimum instance count for auto-scaling"
+  type        = number
+  default     = 1
+}
+
+variable "sagemaker_autoscaling_max_capacity" {
+  description = "Maximum instance count for auto-scaling"
+  type        = number
+  default     = 3
+}
+
+variable "sagemaker_autoscaling_target_invocations" {
+  description = "Target invocations per instance"
+  type        = number
+  default     = 1000
 }
 
 # Athena Variables
