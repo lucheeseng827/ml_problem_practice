@@ -1,0 +1,82 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info
+dist
+build
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints
+*.ipynb_checkpoints
+
+# Data and models (don't copy into image)
+data/
+models/
+notebooks/
+duckdb/
+
+# Logs
+*.log
+logs/
+
+# Docker
+docker-compose*.yml
+Dockerfile*
+.dockerignore
+
+# Terraform
+terraform/
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# Environment
+.env
+.env.*
+
+# Documentation
+*.md
+docs/
+
+# CI/CD
+.github/
+.pre-commit-config.yaml
+
+# Backups
+backups/
+*.bak
+*.backup
+
+# Large files
+*.zip
+*.tar
+*.tar.gz
+*.h5
+*.pb
+*.onnx
+*.pkl
+*.pickle

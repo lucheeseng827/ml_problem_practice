@@ -225,3 +225,131 @@ target\debug\*
 *.csv
 *.tsv
 *.yaml
+
+# =====================================
+# Docker & Development Environment
+# =====================================
+# Environment variables (real secrets)
+.env
+
+# Docker volumes and data
+data/
+models/
+duckdb/
+
+# User notebooks (but keep sample notebooks)
+notebooks/*
+!notebooks/01_duckdb_quickstart.ipynb
+
+# Docker-specific
+docker-compose.override.yml
+
+# =====================================
+# Terraform
+# =====================================
+# Local .terraform directories
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Exclude all .tfvars files (contain sensitive data)
+*.tfvars
+*.tfvars.json
+
+# Override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Terraform lock file (keep for version consistency)
+# .terraform.lock.hcl
+
+# Terraform CLI configuration files
+.terraformrc
+terraform.rc
+
+# =====================================
+# ML/Data Science Specific
+# =====================================
+# Datasets
+*.h5
+*.hdf5
+*.parquet
+*.feather
+*.arrow
+
+# Model files
+*.pt
+*.pth
+*.ckpt
+*.pb
+*.onnx
+*.tflite
+*.keras
+*.h5
+*.joblib
+*.pickle
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# MLflow
+mlruns/
+mlartifacts/
+
+# Weights & Biases
+wandb/
+
+# DVC
+.dvc/
+*.dvc
+
+# Large files
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+
+# =====================================
+# Database files
+# =====================================
+*.db
+*.sqlite
+*.sqlite3
+*.duckdb
+
+# PostgreSQL
+*.dump
+*.sql.gz
+
+# =====================================
+# IDE & Editor
+# =====================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# =====================================
+# OS
+# =====================================
+.DS_Store
+Thumbs.db
+
+# =====================================
+# Logs & Temporary files
+# =====================================
+*.log
+logs/
+tmp/
+temp/
