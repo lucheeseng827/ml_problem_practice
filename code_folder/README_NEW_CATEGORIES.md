@@ -1,12 +1,12 @@
-# New ML Practice Categories (10-20)
+# New ML Practice Categories (10-21)
 
-This document describes **48 new machine learning practice examples** added to the repository, organized into 11 comprehensive categories covering advanced ML topics.
+This document describes **53 new machine learning practice examples** added to the repository, organized into 12 comprehensive categories covering advanced ML topics.
 
 ## 📊 Overview
 
-**Total new examples**: 48 Python scripts
-**Categories added**: 11 (Categories 10-20)
-**Focus areas**: Time Series, Computer Vision, NLP, Recommender Systems, Anomaly Detection, Interpretability, AutoML, Reinforcement Learning, Multi-Modal, MLOps, and **Ensemble Methods**
+**Total new examples**: 53 Python scripts
+**Categories added**: 12 (Categories 10-21)
+**Focus areas**: Time Series, Computer Vision, NLP, Recommender Systems, Anomaly Detection, Interpretability, AutoML, Reinforcement Learning, Multi-Modal, MLOps, Ensemble Methods, and **Transfer Learning & Pipeline Orchestration**
 
 ### 📂 Directory Structure
 
@@ -24,8 +24,9 @@ ml_problem_practice/
     ├── 16_*.py  # AutoML (4 files)
     ├── 17_*.py  # Reinforcement Learning (4 files)
     ├── 18_*.py  # Multi-Modal Learning (4 files)
-    ├── 19_*.py  # MLOps & Production (5 files)
+    ├── 19_*.py  # MLOps & Production (9 files) ⭐ +4 NEW
     ├── 20_*.py  # Ensemble Methods (6 files)
+    ├── 21_*.py  # Transfer Learning & Pipelines (1 file) 🆕
     └── README_NEW_CATEGORIES.md  # This file
 ```
 
@@ -419,28 +420,33 @@ Multi-Modal Learning combines different types of data (images, text, audio, grap
 
 ---
 
-## Category 19: MLOps & Production (5 files)
+## Category 19: MLOps & Production (8 files)
 
 
 ### 📖 Background
 
-MLOps brings DevOps practices to machine learning, focusing on deploying, monitoring, and maintaining ML systems in production. This includes model serving, A/B testing, monitoring for drift, and ensuring models remain accurate over time. Essential for production ML systems.
+MLOps brings DevOps practices to machine learning, focusing on deploying, monitoring, and maintaining ML systems in production. This includes model serving, A/B testing, monitoring for drift, and ensuring models remain accurate over time. Also covers experiment tracking, model versioning, data validation, and cloud deployment. Essential for production ML systems.
 
-**Key Concepts**: Model serving, API design, monitoring, A/B testing, data drift, feature stores, CI/CD for ML
+**Key Concepts**: Model serving, API design, monitoring, A/B testing, data drift, feature stores, CI/CD for ML, experiment tracking, model registry, data validation, cloud deployment (SageMaker)
 
-**Prerequisites**: Basic software engineering, REST APIs, understanding of production systems
+**Prerequisites**: Basic software engineering, REST APIs, understanding of production systems, Docker, cloud platforms (AWS)
 
-**Problem Types**: Deployment, monitoring, operations
+**Problem Types**: Deployment, monitoring, operations, model lifecycle management, data quality
 
 **Directory**: `code_folder/19_*.py`
 
+**Infrastructure**: See [MLOPS_INFRASTRUCTURE.md](../MLOPS_INFRASTRUCTURE.md) for local (Docker Compose + MLflow) and cloud (Terraform + SageMaker) setup.
+
 ### 🚀 Files:
+
+#### Model Serving & APIs
 1. **19_model_serving_fastapi.py**
    - REST API for models
    - Request/response handling
    - Health checks
    - **Use cases**: Production model serving
 
+#### Monitoring & Testing
 2. **19_model_monitoring_prometheus.py**
    - Metrics collection
    - Latency tracking
@@ -453,17 +459,50 @@ MLOps brings DevOps practices to machine learning, focusing on deploying, monito
    - Statistical analysis
    - **Use cases**: Model comparison, gradual rollouts
 
-4. **19_feature_engineering_pipeline.py**
-   - Production feature engineering
-   - Consistent transformations
-   - Pipeline serialization
-   - **Use cases**: Data pipelines, feature stores
-
-5. **19_data_drift_detection.py**
+4. **19_data_drift_detection.py**
    - Distribution shift detection
    - Statistical tests (KS test)
    - Trigger retraining
    - **Use cases**: Data quality monitoring
+
+5. **19_great_expectations_data_validation.py** ⭐ NEW
+   - Data validation framework
+   - Expectation suites
+   - Quality reports
+   - CI/CD integration
+   - **Use cases**: Data testing, pipeline validation
+
+#### Model Lifecycle Management
+6. **19_mlflow_model_registry.py** ⭐ NEW
+   - Experiment tracking
+   - Model versioning
+   - Stage transitions (Staging → Production)
+   - Model registry
+   - **Use cases**: Model lifecycle, version control
+   - **Requires**: MLflow server (run `make up` to start)
+
+7. **19_bentoml_model_packaging.py** ⭐ NEW
+   - Model packaging
+   - API generation
+   - Docker containerization
+   - Multi-cloud deployment
+   - **Use cases**: Model packaging, deployment
+
+#### Cloud Deployment
+8. **19_sagemaker_training_deployment.py** ⭐ NEW
+   - AWS SageMaker workflow
+   - Training jobs at scale
+   - Model deployment
+   - Endpoint creation
+   - **Use cases**: Cloud ML, scalable training
+   - **Requires**: AWS account, credentials
+
+#### Feature Engineering
+9. **19_feature_engineering_pipeline.py**
+   - Production feature engineering
+   - Consistent transformations
+   - Pipeline serialization
+   - **Use cases**: Data pipelines, feature stores
 
 ---
 
@@ -527,6 +566,79 @@ Ensemble Methods combine multiple models to produce better predictions than any 
 
 ---
 
+## Category 21: Transfer Learning & Pipeline Orchestration (2 files) 🆕
+
+
+### 📖 Background
+
+This category combines two crucial production ML concepts: **Transfer Learning** (using pre-trained models for custom tasks) and **Pipeline Orchestration** (automating the complete ML lifecycle with scheduling frameworks). Transfer learning enables faster development and better performance by leveraging models trained on massive datasets. Pipeline orchestration ensures reliable, repeatable, and automated ML workflows in production.
+
+**Key Concepts**: Pre-trained models, fine-tuning, feature extraction, discriminative learning rates, DAGs, task dependencies, scheduling, quality gates, automated retraining
+
+**Prerequisites**: Deep learning basics, understanding of ML lifecycle, Python, basic DevOps concepts
+
+**Problem Types**: Any ML task benefiting from pre-trained models, production ML pipelines, automated workflows
+
+**Directory**: `code_folder/21_*.py`
+
+**Documentation**: See [ML_MODEL_LIFECYCLE.md](../ML_MODEL_LIFECYCLE.md) for complete lifecycle guide with pre-trained models and orchestration frameworks.
+
+### 🚀 Files:
+
+1. **21_transfer_learning_pretrained_models.py** ⭐ NEW
+   - Pre-trained model usage (BERT, ResNet)
+   - Fine-tuning vs feature extraction
+   - Gradual unfreezing strategies
+   - Discriminative learning rates
+   - Model adaptation workflows
+   - HuggingFace Hub integration
+   - **Use cases**: Custom classification with limited data, domain adaptation
+   - **Models**: BERT, RoBERTa, ResNet, ViT, CLIP
+
+2. **19_airflow_ml_pipeline.py** ⭐ NEW
+   - Complete ML pipeline with Apache Airflow
+   - DAG (Directed Acyclic Graph) definition
+   - Task dependencies and execution
+   - Data ingestion → validation → training → deployment
+   - Quality gates before deployment
+   - Automated scheduling (daily, weekly, cron)
+   - Retry logic and error handling
+   - **Use cases**: Automated retraining, scheduled ML workflows, production pipelines
+   - **Framework**: Apache Airflow
+
+### Pipeline Stages Demonstrated:
+
+```
+Data Ingestion ──► Data Validation ──► Preprocessing
+       │                  │                  │
+       ▼                  ▼                  ▼
+   From DB/API      Great Expectations   Train/Test Split
+       │                  │                  │
+       ▼                  ▼                  ▼
+Model Training ──► Model Evaluation ──► Quality Gate
+       │                  │                  │
+       ▼                  ▼                  ▼
+  Using Pre-        Calculate           Deploy if
+  trained BERT      Metrics            Accuracy > 85%
+       │                  │                  │
+       ▼                  ▼                  ▼
+Model Registry ──► Deployment ───────► Monitoring
+  (MLflow)         (SageMaker/K8s)    (Prometheus)
+```
+
+### Complete Model Lifecycle:
+
+1. **Selection**: Choose pre-trained model (BERT, ResNet, etc.)
+2. **Loading**: Load from HuggingFace/Torchvision
+3. **Adaptation**: Replace head, configure freezing
+4. **Training**: Fine-tune on custom data
+5. **Evaluation**: Test metrics, validation
+6. **Registration**: MLflow model registry
+7. **Deployment**: Serve via endpoint
+8. **Monitoring**: Track drift, retrain triggers
+
+---
+
 ## 🎯 Quick Start
 
 ### Run any example:
@@ -561,6 +673,7 @@ pip install xgboost lightgbm  # For ensemble methods (Category 20)
 **Advanced**:
 - Categories 16, 17, 18 (AutoML, RL, Multi-Modal)
 - Category 19 (MLOps & Production)
+- Category 21 (Transfer Learning & Pipelines) 🚀
 
 ---
 
@@ -575,8 +688,10 @@ pip install xgboost lightgbm  # For ensemble methods (Category 20)
 - **AutoML**: Model Selection, Hyperparameter Tuning, NAS
 - **Reinforcement Learning**: Q-Learning, DQN, PPO
 - **Multi-Modal**: CLIP, Whisper, Stable Diffusion, GNNs
-- **MLOps**: Serving, Monitoring, A/B Testing, Drift Detection
+- **MLOps**: Serving, Monitoring, A/B Testing, Drift Detection, Model Registry
 - **Ensemble Methods**: Random Forest, XGBoost, LightGBM, AdaBoost, Stacking, Voting
+- **Transfer Learning**: BERT fine-tuning, ResNet adaptation, HuggingFace Hub
+- **Pipeline Orchestration**: Airflow DAGs, Automated workflows, Scheduled retraining
 
 ---
 
