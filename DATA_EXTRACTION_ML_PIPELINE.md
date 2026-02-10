@@ -453,7 +453,7 @@ pq.write_table(table, f"s3://{bucket}/ml-ready/titanic/features.parquet")
 
 ### Techniques Covered
 
-#### 4.1 Handle Missing Values
+#### 5.1 Handle Missing Values
 ```python
 # Numeric: fill with median
 numeric_cols = df.select_dtypes(include="number").columns
@@ -465,7 +465,7 @@ for col in cat_cols:
     df[col] = df[col].fillna(df[col].mode()[0])
 ```
 
-#### 4.2 Type Casting and Cleanup
+#### 5.2 Type Casting and Cleanup
 ```python
 df["Age"] = df["Age"].astype(float)
 df["Pclass"] = df["Pclass"].astype("category")
@@ -475,7 +475,7 @@ for col in df.select_dtypes(include="object").columns:
     df[col] = df[col].str.strip()
 ```
 
-#### 4.3 Feature Engineering
+#### 5.3 Feature Engineering
 ```python
 # Binning continuous variables
 df["Age_Group"] = pd.cut(df["Age"], bins=[0, 12, 18, 35, 60, 100],
@@ -489,7 +489,7 @@ import numpy as np
 df["Log_Fare"] = np.log1p(df["Fare"])
 ```
 
-#### 4.4 Encoding Categorical Variables
+#### 5.4 Encoding Categorical Variables
 ```python
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
@@ -501,7 +501,7 @@ df["Sex_Encoded"] = le.fit_transform(df["Sex"])
 df = pd.get_dummies(df, columns=["Age_Group"], prefix="Age", drop_first=True)
 ```
 
-#### 4.5 Normalization / Scaling
+#### 5.5 Normalization / Scaling
 ```python
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
@@ -509,7 +509,7 @@ scaler = StandardScaler()
 df[["Fare_Scaled"]] = scaler.fit_transform(df[["Fare"]])
 ```
 
-#### 4.6 Train / Test Split with Stratification
+#### 5.6 Train / Test Split with Stratification
 ```python
 from sklearn.model_selection import train_test_split
 
@@ -529,7 +529,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 ### Techniques Covered
 
-#### 5.1 Baseline Model (Logistic Regression)
+#### 6.1 Baseline Model (Logistic Regression)
 ```python
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report, roc_auc_score
@@ -541,7 +541,7 @@ y_pred = model.predict(X_train)
 print(f"Train Accuracy: {accuracy_score(y_train, y_pred):.4f}")
 ```
 
-#### 5.2 Gradient Boosted Model (XGBoost)
+#### 6.2 Gradient Boosted Model (XGBoost)
 ```python
 from xgboost import XGBClassifier
 
@@ -555,7 +555,7 @@ xgb_model = XGBClassifier(
 xgb_model.fit(X_train, y_train)
 ```
 
-#### 5.3 Cross-Validation
+#### 6.3 Cross-Validation
 ```python
 from sklearn.model_selection import cross_val_score
 
@@ -563,7 +563,7 @@ scores = cross_val_score(model, X_train, y_train, cv=5, scoring="accuracy")
 print(f"CV Accuracy: {scores.mean():.4f} (+/- {scores.std():.4f})")
 ```
 
-#### 5.4 Save Model Artifacts
+#### 6.4 Save Model Artifacts
 ```python
 import joblib
 
@@ -581,7 +581,7 @@ joblib.dump(le, "model_artifacts/label_encoder.joblib")
 
 ### Techniques Covered
 
-#### 6.1 Load Model and Run Inference
+#### 7.1 Load Model and Run Inference
 ```python
 import joblib
 import pandas as pd
@@ -591,7 +591,7 @@ y_pred = model.predict(X_test)
 y_proba = model.predict_proba(X_test)[:, 1]
 ```
 
-#### 6.2 Overlay Predictions on Test DataFrame
+#### 7.2 Overlay Predictions on Test DataFrame
 ```python
 test_results = X_test.copy()
 test_results["Actual"] = y_test.values
@@ -600,7 +600,7 @@ test_results["Predicted_Probability"] = y_proba
 test_results["Correct"] = test_results["Actual"] == test_results["Predicted"]
 ```
 
-#### 6.3 Evaluate on Test Set
+#### 7.3 Evaluate on Test Set
 ```python
 from sklearn.metrics import (
     accuracy_score, precision_score, recall_score, f1_score,
@@ -616,7 +616,7 @@ metrics = {
 }
 ```
 
-#### 6.4 Export Overlayed Results
+#### 7.4 Export Overlayed Results
 ```python
 test_results.to_csv("output/test_predictions_overlay.csv", index=False)
 test_results.to_parquet("output/test_predictions_overlay.parquet", index=False)
@@ -624,7 +624,7 @@ test_results.to_parquet("output/test_predictions_overlay.parquet", index=False)
 pd.DataFrame([metrics]).to_csv("output/test_metrics.csv", index=False)
 ```
 
-#### 6.5 Error Analysis
+#### 7.5 Error Analysis
 ```python
 errors = test_results[~test_results["Correct"]]
 print(f"Total errors: {len(errors)} / {len(test_results)}")

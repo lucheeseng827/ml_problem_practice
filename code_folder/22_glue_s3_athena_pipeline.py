@@ -345,7 +345,20 @@ class DownstreamExporter:
 
     @staticmethod
     def to_dynamodb(df: pd.DataFrame, table_name: str, key_column: str):
-        """Export DataFrame rows to DynamoDB."""
+        """Export DataFrame rows to DynamoDB.
+
+        Args:
+            df: DataFrame to export.
+            table_name: DynamoDB table name.
+            key_column: Column to use as the DynamoDB partition key.
+                        Must exist in the DataFrame.
+        """
+        if key_column not in df.columns:
+            raise ValueError(
+                f"key_column '{key_column}' not found in DataFrame. "
+                f"Available columns: {list(df.columns)}"
+            )
+
         import boto3
         dynamodb = boto3.resource("dynamodb")
         table = dynamodb.Table(table_name)
@@ -353,9 +366,11 @@ class DownstreamExporter:
         with table.batch_writer() as batch:
             for _, row in df.iterrows():
                 item = {k: _convert_dynamodb_type(v) for k, v in row.to_dict().items()}
+                if key_column not in item or item[key_column] is None:
+                    raise ValueError(f"Partition key '{key_column}' is missing or None for row")
                 batch.put_item(Item=item)
                 written += 1
-        print(f"[Export] Wrote {written} items to DynamoDB table '{table_name}'")
+        print(f"[Export] Wrote {written} items to DynamoDB table '{table_name}' (key={key_column})")
 
     @staticmethod
     def to_s3_for_redshift(df: pd.DataFrame, bucket: str, key: str) -> str:
@@ -366,7 +381,7 @@ class DownstreamExporter:
         s3.put_object(Bucket=bucket, Key=key, Body=csv_data.encode())
         s3_uri = f"s3://{bucket}/{key}"
         print(f"[Export] Wrote {len(df)} rows to {s3_uri} (ready for Redshift COPY)")
-        print(f"  -> COPY command:")
+        print("  -> COPY command:")
         print(f"     COPY schema.table FROM '{s3_uri}' IAM_ROLE 'arn:...' CSV IGNOREHEADER 1;")
         return s3_uri
 

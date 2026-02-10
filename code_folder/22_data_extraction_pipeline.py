@@ -59,7 +59,7 @@ def extract_california_housing() -> pd.DataFrame:
     housing = fetch_california_housing(as_frame=True)
     df = housing.frame
     print(f"  -> {df.shape[0]} rows, {df.shape[1]} columns")
-    print(f"  -> Target: MedHouseVal (median house value in $100k)")
+    print("  -> Target: MedHouseVal (median house value in $100k)")
     return df
 
 
@@ -159,11 +159,16 @@ def extract_nyc_taxi_sample(n_rows: int = 10000) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 def round_trip_sqlite(df: pd.DataFrame, table_name: str, db_path: str) -> pd.DataFrame:
     """Write a dataframe to SQLite and read it back — simulates DB extraction."""
+    import re
+
+    if not re.match(r"^[A-Za-z_][A-Za-z0-9_]*$", table_name):
+        raise ValueError(f"Invalid table name: {table_name!r}. Must be a valid SQL identifier.")
+
     print(f"[Extract] SQLite round-trip: writing {len(df)} rows to '{table_name}'")
     conn = sqlite3.connect(db_path)
     try:
         df.to_sql(table_name, conn, if_exists="replace", index=False)
-        df_back = pd.read_sql(f"SELECT * FROM {table_name}", conn)
+        df_back = pd.read_sql_query(f'SELECT * FROM "{table_name}"', conn)
         print(f"  -> Read back {df_back.shape[0]} rows from SQLite")
         return df_back
     finally:

@@ -230,7 +230,7 @@ def build_pipeline_definition():
     )
 
     print("[Pipeline] Pipeline definition built successfully")
-    print(f"  Steps: DataExtraction -> GlueS3Athena -> DataEngineering -> ModelTraining -> InferenceOverlay")
+    print("  Steps: DataExtraction -> GlueS3Athena -> DataEngineering -> ModelTraining -> InferenceOverlay")
     print(f"  S3 prefix: s3://{bucket}/{prefix}/")
 
     return pipeline

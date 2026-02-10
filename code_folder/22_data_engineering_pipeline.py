@@ -26,6 +26,7 @@ import json
 import os
 from pathlib import Path
 
+import joblib
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -272,6 +273,10 @@ def main():
 
     train_df.to_csv(output_dir / "train.csv", index=False)
     test_df.to_csv(output_dir / "test.csv", index=False)
+
+    # Persist scaler for inference stage
+    joblib.dump(scaler, output_dir / "scaler.joblib")
+    print(f"  -> Saved scaler to {output_dir / 'scaler.joblib'}")
 
     # Save feature list and metadata
     metadata = {

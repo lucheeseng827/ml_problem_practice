@@ -87,7 +87,7 @@ def run_inference(model, X_test: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
     print(f"[Inference] Running predictions on {X_test.shape[0]} samples")
     y_pred = model.predict(X_test)
     y_proba = model.predict_proba(X_test)[:, 1]
-    print(f"  -> Predictions generated")
+    print("  -> Predictions generated")
     print(f"  -> Predicted class distribution: {pd.Series(y_pred).value_counts().to_dict()}")
     return y_pred, y_proba
 
@@ -115,7 +115,7 @@ def overlay_predictions(
     )
 
     print(f"  -> Overlay dataframe shape: {result.shape}")
-    print(f"  -> Columns added: Actual, Predicted, Predicted_Probability, Correct, Confidence")
+    print("  -> Columns added: Actual, Predicted, Predicted_Probability, Correct, Confidence")
     return result
 
 
