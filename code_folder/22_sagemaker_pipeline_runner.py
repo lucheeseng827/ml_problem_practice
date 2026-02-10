@@ -1,11 +1,12 @@
 """
 Category 22: SageMaker Pipeline Runner
 ========================================
-Orchestrate the full data extraction -> engineering -> training -> inference
-pipeline as a SageMaker Pipeline.
+Orchestrate the full pipeline as a SageMaker Pipeline:
+  data extraction -> Glue/S3/Athena -> engineering -> training -> inference
 
 Prerequisites:
   - SageMaker domain, IAM roles, and S3 buckets already provisioned
+  - Glue database, crawler role, and Athena workgroup already provisioned
   - SageMaker Python SDK installed (pip install sagemaker)
 
 Usage:
@@ -76,6 +77,43 @@ def build_pipeline_definition():
     )
 
     # ===================================================================
+    # Step 1B: Glue ETL / S3 / Athena (Processing Job)
+    # ===================================================================
+    glue_processor = SKLearnProcessor(
+        framework_version="1.2-1",
+        role=role,
+        instance_type=instance_type,
+        instance_count=1,
+        base_job_name="step-glue-athena",
+        sagemaker_session=session,
+    )
+
+    glue_step = ProcessingStep(
+        name="GlueS3Athena",
+        processor=glue_processor,
+        code="code_folder/22_glue_s3_athena_pipeline.py",
+        inputs=[
+            ProcessingInput(
+                source=extract_step.properties.ProcessingOutputConfig.Outputs[
+                    "extracted_data"
+                ].S3Output.S3Uri,
+                destination="/opt/ml/processing/input",
+            )
+        ],
+        outputs=[
+            ProcessingOutput(
+                output_name="glue_athena_output",
+                source="/opt/ml/processing/output",
+                destination=f"s3://{bucket}/{prefix}/glue-athena-output/",
+            )
+        ],
+        job_arguments=[
+            "--mode", "local",  # Use local mode inside Processing Job
+        ],
+    )
+    glue_step.add_depends_on([extract_step])
+
+    # ===================================================================
     # Step 2: Data Engineering (Processing Job)
     # ===================================================================
     engineer_processor = SKLearnProcessor(
@@ -92,9 +130,10 @@ def build_pipeline_definition():
         processor=engineer_processor,
         code="code_folder/22_data_engineering_pipeline.py",
         inputs=[
+            # Can use either raw extracted data or Glue/Athena cleaned output
             ProcessingInput(
-                source=extract_step.properties.ProcessingOutputConfig.Outputs[
-                    "extracted_data"
+                source=glue_step.properties.ProcessingOutputConfig.Outputs[
+                    "glue_athena_output"
                 ].S3Output.S3Uri,
                 destination="/opt/ml/processing/input",
             )
@@ -107,7 +146,7 @@ def build_pipeline_definition():
             )
         ],
     )
-    engineer_step.add_depends_on([extract_step])
+    engineer_step.add_depends_on([glue_step])
 
     # ===================================================================
     # Step 3: Model Training (Training Job)
@@ -186,12 +225,12 @@ def build_pipeline_definition():
     pipeline = Pipeline(
         name="data-extraction-ml-pipeline",
         parameters=[instance_type, n_estimators, max_depth, learning_rate],
-        steps=[extract_step, engineer_step, train_step, inference_step],
+        steps=[extract_step, glue_step, engineer_step, train_step, inference_step],
         sagemaker_session=session,
     )
 
     print("[Pipeline] Pipeline definition built successfully")
-    print(f"  Steps: DataExtraction -> DataEngineering -> ModelTraining -> InferenceOverlay")
+    print(f"  Steps: DataExtraction -> GlueS3Athena -> DataEngineering -> ModelTraining -> InferenceOverlay")
     print(f"  S3 prefix: s3://{bucket}/{prefix}/")
 
     return pipeline
@@ -216,13 +255,23 @@ def print_pipeline_definition():
                 "outputs": ["s3://<bucket>/ml-pipeline-practice/extracted/"],
             },
             {
+                "name": "GlueS3Athena",
+                "type": "Processing",
+                "script": "code_folder/22_glue_s3_athena_pipeline.py",
+                "processor": "SKLearnProcessor (1.2-1)",
+                "inputs": ["DataExtraction.extracted_data"],
+                "outputs": ["s3://<bucket>/ml-pipeline-practice/glue-athena-output/"],
+                "depends_on": ["DataExtraction"],
+                "description": "Upload to S3, simulate Glue ETL cleaning, Athena queries, downstream export",
+            },
+            {
                 "name": "DataEngineering",
                 "type": "Processing",
                 "script": "code_folder/22_data_engineering_pipeline.py",
                 "processor": "SKLearnProcessor (1.2-1)",
-                "inputs": ["DataExtraction.extracted_data"],
+                "inputs": ["GlueS3Athena.glue_athena_output"],
                 "outputs": ["s3://<bucket>/ml-pipeline-practice/engineered/"],
-                "depends_on": ["DataExtraction"],
+                "depends_on": ["GlueS3Athena"],
             },
             {
                 "name": "ModelTraining",

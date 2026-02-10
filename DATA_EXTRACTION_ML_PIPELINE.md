@@ -11,27 +11,28 @@ A hands-on guide covering end-to-end data extraction, data engineering, ML model
 1. [Pipeline Overview](#1-pipeline-overview)
 2. [Public Data Sources](#2-public-data-sources)
 3. [Stage 1 — Data Extraction](#3-stage-1--data-extraction)
-4. [Stage 2 — Data Engineering](#4-stage-2--data-engineering)
-5. [Stage 3 — ML Model Training](#5-stage-3--ml-model-training)
-6. [Stage 4 — Inference & Overlay on Test Dataset](#6-stage-4--inference--overlay-on-test-dataset)
-7. [Running in SageMaker](#7-running-in-sagemaker)
-8. [Exercise List](#8-exercise-list)
-9. [References](#9-references)
+4. [Stage 1B — Glue ETL, S3 Data Lake & Athena](#4-stage-1b--glue-etl-s3-data-lake--athena)
+5. [Stage 2 — Data Engineering](#5-stage-2--data-engineering)
+6. [Stage 3 — ML Model Training](#6-stage-3--ml-model-training)
+7. [Stage 4 — Inference & Overlay on Test Dataset](#7-stage-4--inference--overlay-on-test-dataset)
+8. [Running in SageMaker](#8-running-in-sagemaker)
+9. [Exercise List](#9-exercise-list)
+10. [References](#10-references)
 
 ---
 
 ## 1. Pipeline Overview
 
 ```
-┌─────────────┐    ┌──────────────┐    ┌───────────────┐    ┌──────────────────┐
-│   Extract    │───▶│   Engineer   │───▶│   Train ML    │───▶│  Inference &     │
-│   Data       │    │   Data       │    │   Model       │    │  Overlay on Test │
-└─────────────┘    └──────────────┘    └───────────────┘    └──────────────────┘
-  - Public APIs      - Clean nulls      - Train/val split    - Load held-out test
-  - CSV/Parquet      - Type casting      - Feature select     - Run predictions
-  - SQL databases    - Feature eng.      - Fit model          - Overlay predictions
-  - Web scraping     - Normalization     - Evaluate metrics     on test dataframe
-                     - Encoding          - Save artifacts      - Export results
+┌─────────────┐    ┌───────────────────┐    ┌──────────────┐    ┌───────────────┐    ┌──────────────────┐
+│   Extract    │───▶│  Glue / S3 /      │───▶│   Engineer   │───▶│   Train ML    │───▶│  Inference &     │
+│   Data       │    │  Athena           │    │   Data       │    │   Model       │    │  Overlay on Test │
+└─────────────┘    └───────────────────┘    └──────────────┘    └───────────────┘    └──────────────────┘
+  - Public APIs      - S3 data lake        - Clean nulls      - Train/val split    - Load held-out test
+  - CSV/Parquet      - Glue Crawlers       - Type casting      - Feature select     - Run predictions
+  - SQL databases    - Glue ETL jobs       - Feature eng.      - Fit model          - Overlay predictions
+  - Web scraping     - Athena SQL queries  - Normalization     - Evaluate metrics     on test dataframe
+                     - Downstream export   - Encoding          - Save artifacts      - Export results
 ```
 
 **Scripts** (in `code_folder/`):
@@ -39,6 +40,7 @@ A hands-on guide covering end-to-end data extraction, data engineering, ML model
 | File | Purpose |
 |------|---------|
 | `22_data_extraction_pipeline.py` | Extract data from public APIs, CSV URLs, and SQLite |
+| `22_glue_s3_athena_pipeline.py` | S3 import, Glue ETL cleaning, Athena querying, downstream export |
 | `22_data_engineering_pipeline.py` | Clean, transform, and feature-engineer extracted data |
 | `22_ml_model_training.py` | Train a simple ML model with evaluation |
 | `22_ml_inference_overlay.py` | Run inference on test set and overlay predictions |
@@ -119,9 +121,335 @@ print(f"Null counts:\n{df.isnull().sum()}")
 
 ---
 
-## 4. Stage 2 — Data Engineering
+## 4. Stage 1B — Glue ETL, S3 Data Lake & Athena
+
+**Script**: `code_folder/22_glue_s3_athena_pipeline.py`
+
+This stage lands extracted data into S3, catalogs it with Glue Crawlers, transforms it with Glue ETL jobs, queries it via Athena, and exports results downstream to other data stores.
+
+> **Infra note**: Glue databases, IAM roles, and S3 buckets are provisioned via Terraform. This section covers the **pipeline code** only.
+
+### Techniques Covered
+
+#### 4.1 Upload Raw Data to S3 (Data Lake Ingestion)
+```python
+import boto3
+
+s3 = boto3.client("s3")
+bucket = "my-data-lake-bucket"
+prefix = "raw/titanic"
+
+# Upload CSV
+s3.upload_file("data/extracted/titanic_raw.csv", bucket, f"{prefix}/titanic_raw.csv")
+
+# Upload Parquet (columnar, better for Athena)
+s3.upload_file("data/extracted/taxi_raw.parquet", bucket, "raw/taxi/taxi_raw.parquet")
+
+# Upload partitioned data (year/month partitioning for Athena performance)
+for year in [2022, 2023]:
+    for month in range(1, 13):
+        key = f"raw/events/year={year}/month={month:02d}/data.parquet"
+        s3.upload_file(f"data/events_{year}_{month}.parquet", bucket, key)
+```
+
+#### 4.2 Glue Crawler — Auto-Discover Schema
+```python
+glue = boto3.client("glue")
+
+# Create a crawler that infers schema from S3 data
+glue.create_crawler(
+    Name="titanic-raw-crawler",
+    Role="arn:aws:iam::123456789012:role/GlueServiceRole",
+    DatabaseName="ml_pipeline_db",
+    Targets={
+        "S3Targets": [
+            {"Path": f"s3://{bucket}/raw/titanic/"},
+        ]
+    },
+    TablePrefix="raw_",
+    SchemaChangePolicy={
+        "UpdateBehavior": "UPDATE_IN_DATABASE",
+        "DeleteBehavior": "LOG",
+    },
+)
+
+# Start the crawler
+glue.start_crawler(Name="titanic-raw-crawler")
+
+# Wait for completion
+import time
+while True:
+    response = glue.get_crawler(Name="titanic-raw-crawler")
+    state = response["Crawler"]["State"]
+    if state == "READY":
+        break
+    time.sleep(10)
+
+# Inspect cataloged table
+table = glue.get_table(DatabaseName="ml_pipeline_db", Name="raw_titanic")
+columns = table["Table"]["StorageDescriptor"]["Columns"]
+print(f"Cataloged {len(columns)} columns: {[c['Name'] for c in columns]}")
+```
+
+#### 4.3 Glue ETL Job — Clean and Transform Data
+```python
+# Glue ETL script (runs inside Glue job environment)
+# File: glue_scripts/etl_clean_titanic.py
+
+from awsglue.context import GlueContext
+from awsglue.job import Job
+from awsglue.transforms import *
+from pyspark.context import SparkContext
+from pyspark.sql import functions as F
+
+sc = SparkContext()
+glue_context = GlueContext(sc)
+spark = glue_context.spark_session
+job = Job(glue_context)
+
+# Read from Glue Data Catalog
+dyf = glue_context.create_dynamic_frame.from_catalog(
+    database="ml_pipeline_db",
+    table_name="raw_titanic",
+)
+
+# Convert to Spark DataFrame for transformations
+df = dyf.toDF()
+
+# --- Cleaning ---
+# Drop duplicates
+df = df.dropDuplicates()
+
+# Fill nulls
+df = df.fillna({"Age": df.agg(F.median("Age")).first()[0]})
+df = df.fillna({"Fare": 0.0})
+
+# Standardize string columns
+df = df.withColumn("Sex", F.lower(F.trim(F.col("Sex"))))
+df = df.withColumn("Name", F.trim(F.col("Name")))
+
+# Add derived columns
+df = df.withColumn("Age_Group",
+    F.when(F.col("Age") < 12, "Child")
+     .when(F.col("Age") < 18, "Teen")
+     .when(F.col("Age") < 35, "Adult")
+     .when(F.col("Age") < 60, "Middle")
+     .otherwise("Senior")
+)
+
+# --- Write cleaned data back to S3 as Parquet ---
+df.write.mode("overwrite").parquet(f"s3://{bucket}/cleaned/titanic/")
+
+job.commit()
+```
+
+**Submit the Glue ETL job via boto3**:
+```python
+glue.create_job(
+    Name="etl-clean-titanic",
+    Role="arn:aws:iam::123456789012:role/GlueServiceRole",
+    Command={
+        "Name": "glueetl",
+        "ScriptLocation": f"s3://{bucket}/glue_scripts/etl_clean_titanic.py",
+        "PythonVersion": "3",
+    },
+    GlueVersion="4.0",
+    NumberOfWorkers=2,
+    WorkerType="G.1X",
+)
+
+# Run the job
+run = glue.start_job_run(Name="etl-clean-titanic")
+job_run_id = run["JobRunId"]
+
+# Poll until complete
+while True:
+    status = glue.get_job_run(JobName="etl-clean-titanic", RunId=job_run_id)
+    state = status["JobRun"]["JobRunState"]
+    if state in ("SUCCEEDED", "FAILED", "STOPPED"):
+        print(f"Glue job finished: {state}")
+        break
+    time.sleep(30)
+```
+
+#### 4.4 Re-Crawl Cleaned Data
+```python
+# Create crawler for cleaned output
+glue.create_crawler(
+    Name="titanic-cleaned-crawler",
+    Role="arn:aws:iam::123456789012:role/GlueServiceRole",
+    DatabaseName="ml_pipeline_db",
+    Targets={"S3Targets": [{"Path": f"s3://{bucket}/cleaned/titanic/"}]},
+    TablePrefix="cleaned_",
+)
+
+glue.start_crawler(Name="titanic-cleaned-crawler")
+```
+
+#### 4.5 Athena — Query Cleaned Data with SQL
+```python
+import time
+import pandas as pd
+
+athena = boto3.client("athena")
+
+def run_athena_query(query: str, database: str, output_location: str) -> pd.DataFrame:
+    """Execute an Athena query and return results as a DataFrame."""
+    execution = athena.start_query_execution(
+        QueryString=query,
+        QueryExecutionContext={"Database": database},
+        ResultConfiguration={"OutputLocation": output_location},
+    )
+    execution_id = execution["QueryExecutionId"]
+
+    # Wait for query to complete
+    while True:
+        result = athena.get_query_execution(QueryExecutionId=execution_id)
+        state = result["QueryExecution"]["Status"]["State"]
+        if state in ("SUCCEEDED", "FAILED", "CANCELLED"):
+            break
+        time.sleep(2)
+
+    if state != "SUCCEEDED":
+        reason = result["QueryExecution"]["Status"].get("StateChangeReason", "Unknown")
+        raise RuntimeError(f"Athena query {state}: {reason}")
+
+    # Read results from S3
+    output_key = f"{output_location.split('/', 3)[3]}/{execution_id}.csv"
+    return pd.read_csv(f"{output_location}/{execution_id}.csv")
+
+
+# --- Example Queries ---
+
+# Basic SELECT
+df = run_athena_query(
+    query="SELECT * FROM cleaned_titanic LIMIT 100",
+    database="ml_pipeline_db",
+    output_location=f"s3://{bucket}/athena-results/",
+)
+
+# Aggregation query
+survival_by_class = run_athena_query(
+    query="""
+        SELECT pclass,
+               COUNT(*) AS total,
+               SUM(survived) AS survived,
+               ROUND(AVG(survived) * 100, 1) AS survival_rate_pct
+        FROM cleaned_titanic
+        GROUP BY pclass
+        ORDER BY pclass
+    """,
+    database="ml_pipeline_db",
+    output_location=f"s3://{bucket}/athena-results/",
+)
+
+# CTAS — Create a new table from query (materialized view)
+run_athena_query(
+    query="""
+        CREATE TABLE ml_pipeline_db.titanic_features
+        WITH (format = 'PARQUET', external_location = 's3://bucket/features/titanic/')
+        AS SELECT survived, pclass, sex, age, fare, age_group,
+                  fare / NULLIF(siblings_spouses_aboard + 1, 0) AS fare_per_person
+        FROM cleaned_titanic
+        WHERE age IS NOT NULL
+    """,
+    database="ml_pipeline_db",
+    output_location=f"s3://{bucket}/athena-results/",
+)
+```
+
+#### 4.6 Download Athena Results for ML Pipeline
+```python
+# Pull Athena query results directly into pandas for downstream ML
+features_df = run_athena_query(
+    query="SELECT * FROM titanic_features",
+    database="ml_pipeline_db",
+    output_location=f"s3://{bucket}/athena-results/",
+)
+
+# Save locally for the data engineering stage
+features_df.to_csv("data/extracted/titanic_from_athena.csv", index=False)
+features_df.to_parquet("data/extracted/titanic_from_athena.parquet", index=False)
+```
+
+#### 4.7 Downstream Export to Other Data Stores
+
+**Export to RDS (PostgreSQL/MySQL)**:
+```python
+from sqlalchemy import create_engine
+
+engine = create_engine("postgresql://user:pass@rds-host:5432/mldb")
+features_df.to_sql("titanic_features", engine, if_exists="replace", index=False)
+```
+
+**Export to DynamoDB**:
+```python
+dynamodb = boto3.resource("dynamodb")
+table = dynamodb.Table("titanic_predictions")
+
+with table.batch_writer() as batch:
+    for _, row in features_df.iterrows():
+        batch.put_item(Item={
+            "passenger_id": int(row.name),
+            "survived": int(row["survived"]),
+            "pclass": int(row["pclass"]),
+            "age_group": row["age_group"],
+        })
+```
+
+**Export to Redshift via S3 COPY** (Redshift infra already provisioned):
+```python
+# Write to S3 in Redshift-friendly format
+features_df.to_csv(f"s3://{bucket}/redshift-staging/titanic_features.csv",
+                    index=False)
+
+# Redshift COPY command (run via psycopg2 or redshift-connector)
+COPY_SQL = f"""
+    COPY ml_schema.titanic_features
+    FROM 's3://{bucket}/redshift-staging/titanic_features.csv'
+    IAM_ROLE 'arn:aws:iam::123456789012:role/RedshiftCopyRole'
+    CSV IGNOREHEADER 1;
+"""
+```
+
+**Export back to S3 as Parquet for SageMaker**:
+```python
+import pyarrow as pa
+import pyarrow.parquet as pq
+
+table = pa.Table.from_pandas(features_df)
+pq.write_table(table, f"s3://{bucket}/ml-ready/titanic/features.parquet")
+```
+
+### Data Flow Summary
+
+```
+┌──────────────┐     ┌───────────┐     ┌───────────────┐     ┌──────────────┐
+│  Raw Files   │────▶│  S3 Raw   │────▶│ Glue Crawler  │────▶│ Glue Catalog │
+│  (CSV/JSON/  │     │  Layer    │     │ (auto-schema) │     │ (database +  │
+│   Parquet)   │     │           │     │               │     │   tables)    │
+└──────────────┘     └───────────┘     └───────────────┘     └──────┬───────┘
+                                                                    │
+                     ┌───────────┐     ┌───────────────┐            │
+                     │ S3 Clean  │◀────│ Glue ETL Job  │◀───────────┘
+                     │ Layer     │     │ (PySpark)     │
+                     └─────┬─────┘     └───────────────┘
+                           │
+              ┌────────────┼─────────────┐
+              ▼            ▼             ▼
+       ┌──────────┐ ┌───────────┐ ┌──────────────┐
+       │  Athena   │ │ SageMaker │ │  Downstream  │
+       │  Queries  │ │ Training  │ │  (RDS/Dynamo │
+       │  (SQL)    │ │ (ML)      │ │  /Redshift)  │
+       └──────────┘ └───────────┘ └──────────────┘
+```
+
+---
+
+## 5. Stage 2 — Data Engineering
 
 **Script**: `code_folder/22_data_engineering_pipeline.py`
+**Input**: Raw data from Stage 1 or cleaned data from Stage 1B (Athena/S3)
 
 ### Techniques Covered
 
@@ -195,7 +523,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 ---
 
-## 5. Stage 3 — ML Model Training
+## 6. Stage 3 — ML Model Training
 
 **Script**: `code_folder/22_ml_model_training.py`
 
@@ -247,7 +575,7 @@ joblib.dump(le, "model_artifacts/label_encoder.joblib")
 
 ---
 
-## 6. Stage 4 — Inference & Overlay on Test Dataset
+## 7. Stage 4 — Inference & Overlay on Test Dataset
 
 **Script**: `code_folder/22_ml_inference_overlay.py`
 
@@ -306,11 +634,11 @@ print(f"\nError distribution by class:\n{errors['Actual'].value_counts()}")
 
 ---
 
-## 7. Running in SageMaker
+## 8. Running in SageMaker
 
 > Infrastructure (SageMaker domain, IAM roles, S3 buckets) is already provisioned. The instructions below cover **how to run the pipeline code** inside SageMaker.
 
-### 7.1 SageMaker Studio Notebook (Interactive)
+### 8.1 SageMaker Studio Notebook (Interactive)
 
 Use SageMaker Studio notebooks for development and experimentation.
 
@@ -337,12 +665,13 @@ s3.upload_file("data/processed_test.csv", bucket, f"{prefix}/data/test.csv")
 **Run scripts directly** in notebook cells or via `%run`:
 ```python
 %run code_folder/22_data_extraction_pipeline.py
+%run code_folder/22_glue_s3_athena_pipeline.py
 %run code_folder/22_data_engineering_pipeline.py
 %run code_folder/22_ml_model_training.py
 %run code_folder/22_ml_inference_overlay.py
 ```
 
-### 7.2 SageMaker Processing Jobs (Batch Execution)
+### 8.2 SageMaker Processing Jobs (Batch Execution)
 
 Use Processing Jobs to run extraction and engineering steps at scale.
 
@@ -389,7 +718,55 @@ sklearn_processor.run(
 )
 ```
 
-### 7.3 SageMaker Training Jobs
+### 8.3 Glue Integration in SageMaker Pipelines
+
+Trigger Glue Crawlers and ETL jobs from within SageMaker Pipelines using callback steps or Lambda steps.
+
+**Option A — SageMaker Pipeline CallbackStep with Glue**:
+```python
+from sagemaker.workflow.callback_step import CallbackStep
+from sagemaker.workflow.lambda_step import LambdaStep, Lambda
+
+# Lambda function that triggers Glue crawler + ETL job
+glue_lambda = Lambda(
+    function_name="trigger-glue-etl",
+    execution_role_arn=role,
+    script="lambda_functions/trigger_glue.py",
+)
+
+glue_step = LambdaStep(
+    name="GlueETL",
+    lambda_func=glue_lambda,
+    inputs={"crawler_name": "titanic-raw-crawler", "job_name": "etl-clean-titanic"},
+    outputs=["cleaned_s3_path"],
+)
+```
+
+**Option B — Glue Job triggered from Processing Job**:
+```python
+# In 22_glue_s3_athena_pipeline.py, the script uses boto3 to:
+# 1. Upload data to S3
+# 2. Start Glue Crawler and wait
+# 3. Start Glue ETL Job and wait
+# 4. Run Athena queries on cleaned data
+# 5. Export results for downstream stages
+```
+
+**Option C — Athena query from SageMaker Processing Job**:
+```python
+sklearn_processor.run(
+    code="code_folder/22_glue_s3_athena_pipeline.py",
+    outputs=[
+        ProcessingOutput(
+            output_name="athena_results",
+            source="/opt/ml/processing/output",
+            destination=f"s3://{bucket}/{prefix}/athena-output/",
+        )
+    ],
+)
+```
+
+### 8.4 SageMaker Training Jobs
 
 Use built-in or custom training for the model training step.
 
@@ -417,7 +794,7 @@ estimator.fit({
 })
 ```
 
-### 7.4 SageMaker Batch Transform (Inference at Scale)
+### 8.5 SageMaker Batch Transform (Inference at Scale)
 
 Run inference on the full test dataset without deploying an endpoint.
 
@@ -436,7 +813,7 @@ transformer.transform(
 transformer.wait()
 ```
 
-### 7.5 SageMaker Pipelines (Full Orchestration)
+### 8.6 SageMaker Pipelines (Full Orchestration)
 
 Chain all stages into a single reproducible pipeline.
 
@@ -457,7 +834,7 @@ execution = pipeline.start()
 execution.wait()
 ```
 
-### 7.6 SageMaker Experiments (Tracking)
+### 8.7 SageMaker Experiments (Tracking)
 
 Track each run for reproducibility.
 
@@ -478,15 +855,18 @@ with Run(experiment_name="extraction-ml-pipeline", run_name="run-001") as run:
 | Pipeline Stage | SageMaker Feature | Instance Recommendation |
 |----------------|-------------------|------------------------|
 | Data Extraction | Processing Job (SKLearnProcessor) | ml.m5.xlarge |
+| Glue ETL / Crawlers | Glue Job (via LambdaStep or boto3) | Glue G.1X (2-10 workers) |
+| Athena Queries | Processing Job (boto3 + Athena) | ml.m5.xlarge |
 | Data Engineering | Processing Job (SKLearnProcessor) | ml.m5.xlarge |
 | Model Training | Training Job (SKLearn Estimator) | ml.m5.xlarge (CPU) or ml.g4dn.xlarge (GPU) |
 | Inference / Overlay | Batch Transform | ml.m5.xlarge |
+| Downstream Export | Processing Job or Lambda | ml.m5.large |
 | Full Pipeline | SageMaker Pipelines | Per-step config |
 | Experiment Tracking | SageMaker Experiments | N/A (metadata only) |
 
 ---
 
-## 8. Exercise List
+## 9. Exercise List
 
 ### Beginner
 
@@ -507,30 +887,44 @@ with Run(experiment_name="extraction-ml-pipeline", run_name="run-001") as run:
 |---|----------|-------------|
 | 9 | Extract from a REST API (World Bank), normalize JSON | `requests.get()`, `json_normalize()` |
 | 10 | Read Parquet file from URL, filter and sample | `pd.read_parquet()`, `query()`, `sample()` |
-| 11 | Build a feature engineering pipeline with `ColumnTransformer` | `Pipeline`, `ColumnTransformer` |
-| 12 | Train XGBoost with cross-validation, report mean CV score | `XGBClassifier`, `cross_val_score()` |
-| 13 | Compare Logistic Regression vs XGBoost on same test set | Side-by-side metrics, overlay both |
-| 14 | Save and reload model artifacts with joblib | `joblib.dump()`, `joblib.load()` |
-| 15 | Compute confusion matrix and classification report | `confusion_matrix()`, `classification_report()` |
-| 16 | Run data extraction as a SageMaker Processing Job | `SKLearnProcessor`, `ProcessingOutput` |
+| 11 | Upload CSV/Parquet to S3, verify with `list_objects_v2` | `boto3 s3.upload_file()`, S3 keys |
+| 12 | Run a Glue Crawler on S3 data, inspect the cataloged table | `glue.start_crawler()`, `get_table()` |
+| 13 | Query S3 data via Athena, return results as DataFrame | `athena.start_query_execution()`, SQL |
+| 14 | Build a feature engineering pipeline with `ColumnTransformer` | `Pipeline`, `ColumnTransformer` |
+| 15 | Train XGBoost with cross-validation, report mean CV score | `XGBClassifier`, `cross_val_score()` |
+| 16 | Compare Logistic Regression vs XGBoost on same test set | Side-by-side metrics, overlay both |
+| 17 | Save and reload model artifacts with joblib | `joblib.dump()`, `joblib.load()` |
+| 18 | Compute confusion matrix and classification report | `confusion_matrix()`, `classification_report()` |
+| 19 | Run data extraction as a SageMaker Processing Job | `SKLearnProcessor`, `ProcessingOutput` |
 
 ### Advanced
 
 | # | Exercise | Key Concepts |
 |---|----------|-------------|
-| 17 | Build end-to-end pipeline: extract → engineer → train → infer | Multi-script orchestration |
-| 18 | Extract from multiple sources, merge into single dataset | `pd.merge()`, API + CSV join |
-| 19 | Implement data validation checks between stages | Schema checks, row count assertions |
-| 20 | Overlay predictions with confidence intervals | `predict_proba()`, threshold analysis |
-| 21 | Error analysis: segment misclassifications by feature group | Groupby on error dataframe |
-| 22 | Orchestrate full pipeline with SageMaker Pipelines | `Pipeline`, `ProcessingStep`, `TrainingStep` |
-| 23 | Track experiments with SageMaker Experiments | `Run`, `log_metric()`, `log_parameter()` |
-| 24 | Run batch inference with SageMaker Batch Transform | `Transformer`, `transform()` |
+| 20 | Build end-to-end pipeline: extract → Glue → engineer → train → infer | Multi-script orchestration |
+| 21 | Write a Glue ETL job (PySpark) to clean and transform S3 data | `GlueContext`, `DynamicFrame`, PySpark |
+| 22 | Create partitioned S3 data, crawl it, query with Athena partition pruning | S3 partitioning, `MSCK REPAIR TABLE` |
+| 23 | Use Athena CTAS to materialize a feature table from raw data | `CREATE TABLE AS SELECT`, Parquet output |
+| 24 | Export Athena results to RDS and DynamoDB downstream | `sqlalchemy`, `dynamodb.batch_writer()` |
+| 25 | Extract from multiple sources, merge into single dataset | `pd.merge()`, API + CSV join |
+| 26 | Implement data validation checks between stages | Schema checks, row count assertions |
+| 27 | Overlay predictions with confidence intervals | `predict_proba()`, threshold analysis |
+| 28 | Error analysis: segment misclassifications by feature group | Groupby on error dataframe |
+| 29 | Orchestrate full pipeline with SageMaker Pipelines + Glue | `Pipeline`, `LambdaStep`, Glue triggers |
+| 30 | Track experiments with SageMaker Experiments | `Run`, `log_metric()`, `log_parameter()` |
+| 31 | Run batch inference with SageMaker Batch Transform | `Transformer`, `transform()` |
+| 32 | Write Athena query results back to S3 as Parquet for Redshift COPY | Athena → S3 → Redshift COPY |
 
 ---
 
-## 9. References
+## 10. References
 
+- [AWS Glue Developer Guide](https://docs.aws.amazon.com/glue/latest/dg/what-is-glue.html)
+- [AWS Glue PySpark Extensions](https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-python.html)
+- [Amazon Athena User Guide](https://docs.aws.amazon.com/athena/latest/ug/what-is.html)
+- [Athena SQL Reference](https://docs.aws.amazon.com/athena/latest/ug/ddl-sql-reference.html)
+- [boto3 Glue Client](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/glue.html)
+- [boto3 Athena Client](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/athena.html)
 - [SageMaker Python SDK — Processing](https://sagemaker.readthedocs.io/en/stable/amazon_sagemaker_processing.html)
 - [SageMaker Python SDK — Training](https://sagemaker.readthedocs.io/en/stable/frameworks/sklearn/sagemaker.sklearn.html)
 - [SageMaker Python SDK — Pipelines](https://sagemaker.readthedocs.io/en/stable/workflows/pipelines/index.html)
