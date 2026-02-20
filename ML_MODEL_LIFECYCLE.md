@@ -9,6 +9,7 @@ This guide explains the complete lifecycle of ML models from development to prod
 - [Pipeline Orchestration](#pipeline-orchestration)
 - [Scheduling Frameworks](#scheduling-frameworks)
 - [Complete Examples](#complete-examples)
+- [Production Validation & Argo Rollouts](#-production-validation--argo-rollouts)
 
 ## 🔄 Model Lifecycle Overview
 
@@ -712,6 +713,236 @@ with DAG(
     gate >> failure_alert
 ```
 
+## 🏭 Production Validation & Argo Rollouts
+
+### Why Production Validation?
+
+Before promoting a model to serve live traffic, it must pass a battery of automated checks against the **actual EKS cluster** it will run on. These checks ensure the model meets latency SLAs, can handle the required TPS, and doesn't regress on accuracy.
+
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│             PRODUCTION VALIDATION WORKFLOW                       │
+└─────────────────────────────────────────────────────────────────┘
+
+  ┌──────────┐     ┌──────────────┐     ┌──────────────────┐
+  │  Model   │────►│  Build       │────►│  Deploy to       │
+  │  trained │     │  container   │     │  staging on EKS  │
+  └──────────┘     └──────────────┘     └────────┬─────────┘
+                                                 │
+                              ┌───────────────────┘
+                              ▼
+                   ┌──────────────────────┐
+                   │  VALIDATION SUITE    │
+                   │                      │
+                   │  1. Health check     │
+                   │  2. Accuracy / F1    │
+                   │  3. p50/p95/p99      │
+                   │  4. Sustained TPS    │
+                   │  5. Error rate       │
+                   │  6. Model size / mem │
+                   │  7. EKS capacity     │
+                   └──────────┬───────────┘
+                              │
+                    ┌─────────┴─────────┐
+                    │                   │
+               ALL PASS            ANY FAIL
+                    │                   │
+                    ▼                   ▼
+          ┌─────────────────┐  ┌────────────────┐
+          │ Argo Rollouts   │  │ Rollout paused │
+          │ promotion       │  │ team alerted   │
+          │ (canary / B-G)  │  │ fix & re-run   │
+          └─────────────────┘  └────────────────┘
+```
+
+### Validation Suite Checks
+
+| Check | What it measures | Typical threshold |
+|-------|-----------------|-------------------|
+| **Accuracy** | Classification accuracy on held-out set | >= 0.85 |
+| **F1 Score** | Weighted F1 across classes | >= 0.82 |
+| **p50 Latency** | Median response time | <= 50 ms |
+| **p95 Latency** | 95th percentile response time | <= 150 ms |
+| **p99 Latency** | 99th percentile response time | <= 300 ms |
+| **Sustained TPS** | Transactions/sec under load | >= 500 req/s |
+| **Error Rate** | Failed requests / total requests | <= 1% |
+| **Model Size** | Serialised model on disk | <= 500 MB |
+| **Memory Usage** | RSS during inference | <= 512 MB |
+| **EKS Capacity** | Cluster can host required replicas | CPU + RAM fit |
+
+```python
+# Run the validation suite directly:
+#   python code_folder/19_model_production_validation.py
+#
+# Or import it programmatically (filename starts with a digit):
+import importlib.util, sys
+spec = importlib.util.spec_from_file_location(
+    "model_production_validation",
+    "code_folder/19_model_production_validation.py",
+)
+mod = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(mod)
+
+cluster = mod.EKSClusterSpec(node_count=3, node_instance_type="m5.2xlarge")
+thresholds = mod.ValidationThresholds(min_accuracy=0.85, min_tps=500)
+endpoint = mod.SimulatedModelEndpoint(accuracy=0.92)
+
+validator = mod.ModelProductionValidator(endpoint, thresholds, cluster)
+report = validator.run_full_suite("my-model", "2.1.0")
+
+if report.all_passed:
+    print("Promote via Argo Rollouts")
+```
+
+### Load Testing for TPS Assurance
+
+Before promotion, a multi-phase load test ramps concurrency against the staging endpoint:
+
+```text
+Phase 1 (warm-up):   5 workers  × 10s
+Phase 2 (ramp):      10 workers × 15s
+Phase 3 (target):    25 workers × 20s   ← evaluated against thresholds
+Phase 4 (peak):      50 workers × 20s   ← stress ceiling
+Phase 5 (cool-down): 10 workers × 10s
+```
+
+The load test can run as a Kubernetes Job on the same EKS cluster:
+
+```bash
+kubectl apply -f load-test-job.yaml
+kubectl wait --for=condition=complete job/ml-model-load-test -n ml-serving
+```
+
+See `code_folder/19_model_production_load_test.py` for the full harness.
+
+### Argo Rollouts - Canary Deployment
+
+Canary gradually shifts traffic from the stable model to the new version. At each step, an `AnalysisTemplate` queries Prometheus to verify the promotion criteria are met.
+
+```text
+Traffic flow with canary:
+
+  100% stable                 10% canary              30% canary
+  ┌──────────┐     ┌──────────┬──────────┐     ┌──────┬──────────┐
+  │  v1.0.0  │ ──► │  v1.0.0  │  v2.1.0  │ ──► │v1.0.0│  v2.1.0  │
+  │  (prod)  │     │  90%     │  10%     │     │ 70%  │  30%     │
+  └──────────┘     └──────────┴──────────┘     └──────┴──────────┘
+                        │ analysis pass              │ analysis pass
+                        ▼                            ▼
+                   60% canary                   100% promoted
+              ┌──────┬──────────┐     ┌──────────────────────┐
+              │v1.0.0│  v2.1.0  │ ──► │       v2.1.0         │
+              │ 40%  │  60%     │     │   (new stable)       │
+              └──────┴──────────┘     └──────────────────────┘
+```
+
+```yaml
+# Argo Rollout canary steps (see argo-rollouts/canary-rollout.yaml)
+steps:
+  - setWeight: 10
+  - analysis:
+      templates:
+        - templateName: ml-model-analysis   # checks TPS, latency, accuracy
+  - pause: { duration: 2m }
+  - setWeight: 30
+  - analysis:
+      templates:
+        - templateName: ml-model-analysis
+  - pause: { duration: 3m }
+  - setWeight: 60
+  - analysis:
+      templates:
+        - templateName: ml-model-analysis
+  - pause: { duration: 5m }
+  - setWeight: 100
+```
+
+**Promotion criteria (AnalysisTemplate):**
+- Success rate >= 99% (Prometheus: `model_inference_requests_total`)
+- p95 latency <= 150ms (Prometheus: `model_inference_latency_seconds_bucket`)
+- Throughput >= 200 TPS (Prometheus: `model_inference_requests_total` rate)
+- Model accuracy >= 85% (Prometheus: `model_inference_accuracy`)
+
+If **any** metric breaches its threshold, the rollout automatically aborts and traffic reverts to the stable version.
+
+### Argo Rollouts - Blue-Green Deployment
+
+Blue-green keeps the current (active) version running while the new (preview) version is validated in parallel. Traffic switches all at once after analysis passes.
+
+```text
+Blue-Green flow:
+
+  ┌──────────────┐      ┌──────────────┐     ┌──────────────┐
+  │   Active     │      │   Active     │     │   Active     │
+  │   v1.0.0     │      │   v1.0.0     │     │   v2.1.0     │
+  │  (live)      │      │  (live)      │     │  (promoted)  │
+  └──────────────┘      └──────────────┘     └──────────────┘
+                        ┌──────────────┐
+                        │   Preview    │      old pods scaled
+                        │   v2.1.0    │      down after 30s
+                        │  (testing)   │
+                        └──────┬───────┘
+                               │
+                      pre-promotion analysis
+                        (TPS, latency, accuracy)
+                               │
+                          pass ──► switch
+                          fail ──► abort + rollback
+```
+
+```bash
+# Commands
+kubectl argo rollouts get rollout ml-model-bluegreen --watch
+kubectl argo rollouts promote ml-model-bluegreen       # manual promote
+kubectl argo rollouts abort ml-model-bluegreen          # manual abort
+```
+
+### Choosing Canary vs Blue-Green
+
+| Aspect | Canary | Blue-Green |
+|--------|--------|------------|
+| **Traffic shift** | Gradual (10% → 30% → 60% → 100%) | All-at-once |
+| **Risk** | Lower (small blast radius) | Higher (full switch) |
+| **Rollback speed** | Instant (shift weight back) | Instant (switch service) |
+| **Resource cost** | Lower (shared pods) | Higher (2x pods during switch) |
+| **Best for** | High-traffic endpoints, risk-averse | Fast promotion, simpler testing |
+| **Analysis points** | Multiple (each step) | Two (pre + post promotion) |
+
+### CI/CD Integration
+
+The complete automated pipeline:
+
+```text
+┌─────────────┐   ┌──────────────┐   ┌─────────────────┐   ┌──────────────┐
+│ Model train │──►│ Register in  │──►│ Build container  │──►│ Push to ECR  │
+│ (MLflow)    │   │ MLflow       │   │ (Docker/Kaniko)  │   │              │
+└─────────────┘   └──────────────┘   └─────────────────┘   └──────┬───────┘
+                                                                  │
+                  ┌──────────────────────────────────────────────┘
+                  ▼
+         ┌─────────────────┐   ┌──────────────────┐   ┌────────────────┐
+         │ Update Rollout  │──►│ Validation suite  │──►│ Load test Job  │
+         │ image tag       │   │ (accuracy, F1)    │   │ (TPS, latency) │
+         └─────────────────┘   └──────────────────┘   └───────┬────────┘
+                                                              │
+                                                    ┌─────────┴─────────┐
+                                                    │                   │
+                                               ALL PASS            ANY FAIL
+                                                    │                   │
+                                                    ▼                   ▼
+                                         ┌──────────────────┐  ┌──────────────┐
+                                         │ argo rollouts    │  │ argo rollouts│
+                                         │ promote          │  │ abort        │
+                                         └──────────────────┘  └──────────────┘
+```
+
+### Related Files
+
+- [`code_folder/19_model_production_validation.py`](code_folder/19_model_production_validation.py) - Full validation suite
+- [`code_folder/19_model_production_load_test.py`](code_folder/19_model_production_load_test.py) - TPS / latency load harness
+- [`code_folder/basics/kubernetes/argo-rollouts/canary-rollout.yaml`](code_folder/basics/kubernetes/argo-rollouts/canary-rollout.yaml) - Canary with AnalysisTemplate
+- [`code_folder/basics/kubernetes/argo-rollouts/blue-green-rollout.yaml`](code_folder/basics/kubernetes/argo-rollouts/blue-green-rollout.yaml) - Blue-green with pre/post analysis
+
 ## 📚 Best Practices
 
 ### Model Development
@@ -748,6 +979,9 @@ with DAG(
 - [code_folder/19_airflow_ml_pipeline.py](code_folder/19_airflow_ml_pipeline.py) - Complete Airflow example
 - [code_folder/21_transfer_learning_pretrained_models.py](code_folder/21_transfer_learning_pretrained_models.py) - Transfer learning guide
 - [code_folder/19_mlflow_model_registry.py](code_folder/19_mlflow_model_registry.py) - Model versioning
+- [code_folder/19_model_production_validation.py](code_folder/19_model_production_validation.py) - Production validation suite
+- [code_folder/19_model_production_load_test.py](code_folder/19_model_production_load_test.py) - TPS load testing harness
+- [code_folder/basics/kubernetes/argo-rollouts/](code_folder/basics/kubernetes/argo-rollouts/) - Argo Rollouts manifests
 
 ## 🎓 Learning Path
 
@@ -763,8 +997,10 @@ with DAG(
    - Combine transfer learning + Airflow
    - Deploy to local environment
 
-4. **Week 7-8**: Production deployment
-   - Deploy to AWS with Terraform
+4. **Week 7-8**: Production validation & deployment
+   - Run `19_model_production_validation.py` for pre-deployment gates
+   - Run `19_model_production_load_test.py` for TPS assurance
+   - Deploy Argo Rollouts canary/blue-green on EKS
    - Monitor and iterate
 
 ## 💡 Quick Reference

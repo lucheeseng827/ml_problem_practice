@@ -1,0 +1,245 @@
+# Argo Rollouts - Blue-Green Deployment for ML Model Serving
+# ==========================================================
+# Deploys the new model version alongside the current one (preview),
+# runs automated validation, then switches all traffic at once.
+#
+# Promotion criteria:
+#   - Pre-promotion AnalysisRun validates latency, error rate, TPS,
+#     and model accuracy against Prometheus metrics.
+#   - Auto-promotion after analysis passes (or manual via CLI).
+#   - Automatic rollback if post-promotion analysis detects degradation.
+#
+# Prerequisites:
+#   - Argo Rollouts controller on EKS
+#   - Prometheus monitoring
+#   - Active and preview Services
+#
+# Usage:
+#   kubectl apply -f blue-green-rollout.yaml
+#   kubectl argo rollouts get rollout ml-model-bluegreen --watch
+#   kubectl argo rollouts promote ml-model-bluegreen   # manual promote
+
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: ml-model-bluegreen
+  namespace: ml-serving
+  labels:
+    app: ml-model
+    strategy: bluegreen
+spec:
+  replicas: 3
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: ml-model
+  template:
+    metadata:
+      labels:
+        app: ml-model
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: model-server
+          image: registry.example.com/ml-model:v2.1.0
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          resources:
+            requests:
+              cpu: "2"
+              memory: 4Gi
+            limits:
+              cpu: "4"
+              memory: 8Gi
+          env:
+            - name: MODEL_NAME
+              value: customer-sentiment-classifier
+            - name: MODEL_VERSION
+              value: "2.1.0"
+            - name: MLFLOW_TRACKING_URI
+              value: http://mlflow.ml-infra.svc.cluster.local:5000
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 15
+  strategy:
+    blueGreen:
+      # Service that receives live production traffic
+      activeService: ml-model-active-svc
+      # Service that routes to the new (preview) version for validation
+      previewService: ml-model-preview-svc
+
+      # Automatically promote after pre-promotion analysis succeeds
+      autoPromotionEnabled: true
+
+      # Run analysis on preview before promoting to active
+      prePromotionAnalysis:
+        templates:
+          - templateName: ml-model-bluegreen-analysis
+        args:
+          - name: service-name
+            value: ml-model-preview-svc.ml-serving.svc.cluster.local
+
+      # Run analysis after promotion to detect issues quickly
+      postPromotionAnalysis:
+        templates:
+          - templateName: ml-model-bluegreen-analysis
+        args:
+          - name: service-name
+            value: ml-model-active-svc.ml-serving.svc.cluster.local
+
+      # Keep old (blue) pods alive for 30s after switch for fast rollback
+      scaleDownDelaySeconds: 30
+      scaleDownDelayRevisionLimit: 1
+
+      # Revert if post-promotion analysis fails
+      abortScaleDownDelaySeconds: 30
+      previewReplicaCount: 3
+
+---
+# AnalysisTemplate for blue-green pre/post promotion
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: ml-model-bluegreen-analysis
+  namespace: ml-serving
+spec:
+  args:
+    - name: service-name
+  metrics:
+    # Gate 1: success rate >= 99%
+    - name: success-rate
+      interval: 30s
+      count: 5
+      successCondition: result[0] >= 0.99
+      failureLimit: 1
+      provider:
+        prometheus:
+          address: http://prometheus.monitoring.svc.cluster.local:9090
+          query: |
+            sum(rate(
+              model_inference_requests_total{
+                service="{{args.service-name}}",
+                status="success"
+              }[2m]
+            )) /
+            sum(rate(
+              model_inference_requests_total{
+                service="{{args.service-name}}"
+              }[2m]
+            ))
+
+    # Gate 2: p95 latency <= 150ms
+    - name: p95-latency
+      interval: 30s
+      count: 5
+      successCondition: result[0] <= 150
+      failureLimit: 1
+      provider:
+        prometheus:
+          address: http://prometheus.monitoring.svc.cluster.local:9090
+          query: |
+            histogram_quantile(0.95,
+              sum(rate(
+                model_inference_latency_seconds_bucket{
+                  service="{{args.service-name}}"
+                }[2m]
+              )) by (le)
+            ) * 1000
+
+    # Gate 3: throughput >= 200 TPS
+    - name: throughput-tps
+      interval: 30s
+      count: 5
+      successCondition: result[0] >= 200
+      failureLimit: 1
+      provider:
+        prometheus:
+          address: http://prometheus.monitoring.svc.cluster.local:9090
+          query: |
+            sum(rate(
+              model_inference_requests_total{
+                service="{{args.service-name}}"
+              }[2m]
+            ))
+
+    # Gate 4: model accuracy >= 85%
+    - name: model-accuracy
+      interval: 60s
+      count: 3
+      successCondition: result[0] >= 0.85
+      failureLimit: 1
+      provider:
+        prometheus:
+          address: http://prometheus.monitoring.svc.cluster.local:9090
+          query: |
+            model_inference_accuracy{
+              service="{{args.service-name}}"
+            }
+
+    # Gate 5: memory usage within limits (no OOM risk)
+    - name: memory-usage
+      interval: 30s
+      count: 3
+      successCondition: result[0] <= 0.85
+      failureLimit: 1
+      provider:
+        prometheus:
+          address: http://prometheus.monitoring.svc.cluster.local:9090
+          query: |
+            max(
+              container_memory_working_set_bytes{
+                pod=~"ml-model-bluegreen-.*",
+                container="model-server"
+              }
+            ) /
+            max(
+              kube_pod_container_resource_limits{
+                pod=~"ml-model-bluegreen-.*",
+                container="model-server",
+                resource="memory"
+              }
+            )
+
+---
+# Active (production) service
+apiVersion: v1
+kind: Service
+metadata:
+  name: ml-model-active-svc
+  namespace: ml-serving
+spec:
+  selector:
+    app: ml-model
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+
+---
+# Preview (blue-green staging) service
+apiVersion: v1
+kind: Service
+metadata:
+  name: ml-model-preview-svc
+  namespace: ml-serving
+spec:
+  selector:
+    app: ml-model
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP

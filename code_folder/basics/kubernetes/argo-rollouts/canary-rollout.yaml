@@ -1,0 +1,269 @@
+# Argo Rollouts - Canary Deployment for ML Model Serving
+# ======================================================
+# Gradually shifts traffic to the new model version based on
+# automated analysis (success rate, latency, accuracy metrics).
+#
+# Promotion criteria are enforced at each step via an AnalysisTemplate.
+# If any metric breaches its threshold the rollout automatically rolls back.
+#
+# Prerequisites:
+#   - Argo Rollouts controller installed on EKS
+#   - Prometheus scraping the model-serving pods
+#   - Istio / Nginx ingress for traffic splitting
+#
+# Usage:
+#   kubectl apply -f canary-rollout.yaml
+#   kubectl argo rollouts get rollout ml-model-canary --watch
+
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: ml-model-canary
+  namespace: ml-serving
+  labels:
+    app: ml-model
+    strategy: canary
+spec:
+  replicas: 3
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: ml-model
+  template:
+    metadata:
+      labels:
+        app: ml-model
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: model-server
+          image: registry.example.com/ml-model:v2.1.0
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          resources:
+            requests:
+              cpu: "2"
+              memory: 4Gi
+            limits:
+              cpu: "4"
+              memory: 8Gi
+          env:
+            - name: MODEL_NAME
+              value: customer-sentiment-classifier
+            - name: MODEL_VERSION
+              value: "2.1.0"
+            - name: MLFLOW_TRACKING_URI
+              value: http://mlflow.ml-infra.svc.cluster.local:5000
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 15
+  strategy:
+    canary:
+      # ------------------------------------------------------------------
+      # Traffic shifting steps with analysis at each gate
+      # ------------------------------------------------------------------
+      canaryService: ml-model-canary-svc
+      stableService: ml-model-stable-svc
+      trafficRouting:
+        istio:
+          virtualService:
+            name: ml-model-vsvc
+            routes:
+              - primary
+      steps:
+        # Step 1: 10% traffic to canary, run analysis for 2 min
+        - setWeight: 10
+        - analysis:
+            templates:
+              - templateName: ml-model-analysis
+            args:
+              - name: service-name
+                value: ml-model-canary-svc.ml-serving.svc.cluster.local
+        - pause:
+            duration: 2m
+
+        # Step 2: 30% traffic
+        - setWeight: 30
+        - analysis:
+            templates:
+              - templateName: ml-model-analysis
+            args:
+              - name: service-name
+                value: ml-model-canary-svc.ml-serving.svc.cluster.local
+        - pause:
+            duration: 3m
+
+        # Step 3: 60% traffic
+        - setWeight: 60
+        - analysis:
+            templates:
+              - templateName: ml-model-analysis
+            args:
+              - name: service-name
+                value: ml-model-canary-svc.ml-serving.svc.cluster.local
+        - pause:
+            duration: 5m
+
+        # Step 4: full promotion
+        - setWeight: 100
+
+      # Automatic rollback on failure
+      abortScaleDownDelaySeconds: 30
+      scaleDownDelaySeconds: 30
+      scaleDownDelayRevisionLimit: 2
+      antiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          labelSelector:
+            matchLabels:
+              app: ml-model
+          topologyKey: kubernetes.io/hostname
+
+---
+# AnalysisTemplate - defines the Prometheus queries that gate promotion
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: ml-model-analysis
+  namespace: ml-serving
+spec:
+  args:
+    - name: service-name
+  metrics:
+    # Gate 1: success rate must stay above 99%
+    - name: success-rate
+      interval: 30s
+      count: 3
+      successCondition: result[0] >= 0.99
+      failureLimit: 1
+      provider:
+        prometheus:
+          address: http://prometheus.monitoring.svc.cluster.local:9090
+          query: |
+            sum(rate(
+              model_inference_requests_total{
+                service="{{args.service-name}}",
+                status="success"
+              }[1m]
+            )) /
+            sum(rate(
+              model_inference_requests_total{
+                service="{{args.service-name}}"
+              }[1m]
+            ))
+
+    # Gate 2: p95 latency must stay under 150ms
+    - name: p95-latency
+      interval: 30s
+      count: 3
+      successCondition: result[0] <= 150
+      failureLimit: 1
+      provider:
+        prometheus:
+          address: http://prometheus.monitoring.svc.cluster.local:9090
+          query: |
+            histogram_quantile(0.95,
+              sum(rate(
+                model_inference_latency_seconds_bucket{
+                  service="{{args.service-name}}"
+                }[1m]
+              )) by (le)
+            ) * 1000
+
+    # Gate 3: sustained TPS must meet minimum throughput
+    - name: throughput-tps
+      interval: 30s
+      count: 3
+      successCondition: result[0] >= 200
+      failureLimit: 1
+      provider:
+        prometheus:
+          address: http://prometheus.monitoring.svc.cluster.local:9090
+          query: |
+            sum(rate(
+              model_inference_requests_total{
+                service="{{args.service-name}}"
+              }[1m]
+            ))
+
+    # Gate 4: model accuracy (from custom metric exposed by serving layer)
+    - name: model-accuracy
+      interval: 60s
+      count: 2
+      successCondition: result[0] >= 0.85
+      failureLimit: 1
+      provider:
+        prometheus:
+          address: http://prometheus.monitoring.svc.cluster.local:9090
+          query: |
+            model_inference_accuracy{
+              service="{{args.service-name}}"
+            }
+
+---
+# Services for stable and canary
+apiVersion: v1
+kind: Service
+metadata:
+  name: ml-model-stable-svc
+  namespace: ml-serving
+spec:
+  selector:
+    app: ml-model
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ml-model-canary-svc
+  namespace: ml-serving
+spec:
+  selector:
+    app: ml-model
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+
+---
+# Istio VirtualService for traffic splitting
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: ml-model-vsvc
+  namespace: ml-serving
+spec:
+  hosts:
+    - ml-model.example.com
+  gateways:
+    - ml-serving-gateway
+  http:
+    - name: primary
+      route:
+        - destination:
+            host: ml-model-stable-svc
+            port:
+              number: 80
+          weight: 100
+        - destination:
+            host: ml-model-canary-svc
+            port:
+              number: 80
+          weight: 0
