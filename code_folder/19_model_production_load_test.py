@@ -12,6 +12,8 @@ the model's staging endpoint before Argo Rollouts promotion.
 """
 
 import json
+import os
+import tempfile
 import time
 import threading
 import statistics
@@ -121,9 +123,10 @@ class LoadTestRunner:
                 with lock:
                     results["latencies"].append(elapsed_ms)
                     results["ok"] += 1
-            except Exception:
+            except Exception as e:
                 with lock:
                     results["errors"] += 1
+                    results.setdefault("last_error", str(e))
 
     def run_phase(self, phase_index: int, concurrency: int,
                   duration: int) -> PhaseResult:
@@ -234,8 +237,11 @@ def print_evaluation(evaluation: dict):
 
 
 def export_results(phases: list, evaluation: dict,
-                   path: str = "/tmp/load_test_results.json"):
+                   path: Optional[str] = None):
     """Export results as JSON for CI/CD pipelines."""
+    if path is None:
+        fd, path = tempfile.mkstemp(suffix=".json", prefix="load_test_results_")
+        os.close(fd)
     data = {
         "phases": [
             {

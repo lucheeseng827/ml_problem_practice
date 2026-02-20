@@ -9,6 +9,8 @@ Demonstrates: Production readiness checks before Argo Rollouts promotion
 """
 
 import json
+import os
+import tempfile
 import time
 import threading
 import statistics
@@ -22,25 +24,55 @@ import numpy as np
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
+
+# vCPU and memory for common EKS instance types used in ML serving
+INSTANCE_SPECS: dict = {
+    "m5.large":    {"vcpus": 2,  "memory_gib": 8},
+    "m5.xlarge":   {"vcpus": 4,  "memory_gib": 16},
+    "m5.2xlarge":  {"vcpus": 8,  "memory_gib": 32},
+    "m5.4xlarge":  {"vcpus": 16, "memory_gib": 64},
+    "m5.8xlarge":  {"vcpus": 32, "memory_gib": 128},
+    "c5.xlarge":   {"vcpus": 4,  "memory_gib": 8},
+    "c5.2xlarge":  {"vcpus": 8,  "memory_gib": 16},
+    "c5.4xlarge":  {"vcpus": 16, "memory_gib": 32},
+    "r5.xlarge":   {"vcpus": 4,  "memory_gib": 32},
+    "r5.2xlarge":  {"vcpus": 8,  "memory_gib": 64},
+    "g4dn.xlarge": {"vcpus": 4,  "memory_gib": 16},
+    "g4dn.2xlarge": {"vcpus": 8, "memory_gib": 32},
+    "g5.xlarge":   {"vcpus": 4,  "memory_gib": 16},
+    "g5.2xlarge":  {"vcpus": 8,  "memory_gib": 32},
+    "p3.2xlarge":  {"vcpus": 8,  "memory_gib": 61},
+}
+
+
 @dataclass
 class EKSClusterSpec:
     """Known EKS cluster specification used for capacity planning."""
     cluster_name: str = "ml-serving-prod"
-    node_instance_type: str = "m5.2xlarge"  # 8 vCPU, 32 GiB
+    node_instance_type: str = "m5.2xlarge"
     node_count: int = 3
-    gpu_instance_type: Optional[str] = "g4dn.xlarge"  # T4 GPU
+    gpu_instance_type: Optional[str] = "g4dn.xlarge"
     gpu_node_count: int = 0
     max_pods_per_node: int = 58  # ENI-based limit for m5.2xlarge
     target_cpu_utilization: float = 0.70
     target_memory_utilization: float = 0.75
 
+    def _get_instance_spec(self) -> dict:
+        if self.node_instance_type not in INSTANCE_SPECS:
+            raise ValueError(
+                f"Unknown instance type '{self.node_instance_type}'. "
+                f"Add it to INSTANCE_SPECS or use one of: "
+                f"{', '.join(sorted(INSTANCE_SPECS))}"
+            )
+        return INSTANCE_SPECS[self.node_instance_type]
+
     @property
     def total_vcpus(self) -> int:
-        return self.node_count * 8
+        return self.node_count * self._get_instance_spec()["vcpus"]
 
     @property
     def total_memory_gib(self) -> int:
-        return self.node_count * 32
+        return self.node_count * self._get_instance_spec()["memory_gib"]
 
 
 @dataclass
@@ -155,8 +187,14 @@ class ModelProductionValidator:
     def validate_f1_score(self, y_true, y_pred) -> ValidationResult:
         from collections import Counter
 
-        classes = set(y_true) | set(y_pred)
-        f1_scores = []
+        if len(y_true) != len(y_pred):
+            raise ValueError(
+                f"y_true and y_pred must have the same length, "
+                f"got {len(y_true)} vs {len(y_pred)}"
+            )
+
+        classes = sorted(set(y_true) | set(y_pred))
+        f1_per_class = {}
         for cls in classes:
             tp = sum(1 for a, b in zip(y_true, y_pred) if a == cls and b == cls)
             fp = sum(1 for a, b in zip(y_true, y_pred) if a != cls and b == cls)
@@ -165,13 +203,13 @@ class ModelProductionValidator:
             recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
             f1 = (2 * precision * recall / (precision + recall)
                   if (precision + recall) > 0 else 0.0)
-            f1_scores.append(f1)
+            f1_per_class[cls] = f1
 
         class_counts = Counter(y_true)
         total = sum(class_counts.values())
         weighted_f1 = sum(
-            f1 * class_counts.get(cls, 0) / total
-            for f1, cls in zip(f1_scores, classes)
+            f1_per_class[cls] * class_counts.get(cls, 0) / total
+            for cls in classes
         )
         return ValidationResult(
             name="f1_score",
@@ -425,8 +463,11 @@ def print_report(report: ValidationReport):
     print("=" * width)
 
 
-def export_report_json(report: ValidationReport, path: str = "/tmp/validation_report.json"):
+def export_report_json(report: ValidationReport, path: Optional[str] = None):
     """Export the report as JSON for CI/CD consumption."""
+    if path is None:
+        fd, path = tempfile.mkstemp(suffix=".json", prefix="validation_report_")
+        os.close(fd)
     data = {
         "model_name": report.model_name,
         "model_version": report.model_version,
