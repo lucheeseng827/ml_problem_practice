@@ -178,6 +178,9 @@ def evaluate_results(phases: list, config: LoadTestConfig) -> dict:
 
     Returns a dict with pass/fail per metric and overall verdict.
     """
+    if not phases:
+        raise ValueError("evaluate_results: phases list is empty")
+
     # Use the "target" phase (highest concurrency that is not cool-down)
     # to evaluate thresholds.  Fallback to the last phase.
     target_phase = max(phases, key=lambda p: p.concurrency)
