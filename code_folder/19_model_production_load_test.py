@@ -16,7 +16,6 @@ import os
 import tempfile
 import time
 import threading
-import statistics
 import concurrent.futures
 from dataclasses import dataclass, field
 from typing import Optional
