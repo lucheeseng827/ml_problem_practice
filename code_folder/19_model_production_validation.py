@@ -174,6 +174,11 @@ class ModelProductionValidator:
 
     # -- Accuracy & quality checks -----------------------------------------
     def validate_accuracy(self, y_true, y_pred) -> ValidationResult:
+        if len(y_true) != len(y_pred):
+            raise ValueError(
+                f"y_true and y_pred must have the same length, "
+                f"got {len(y_true)} vs {len(y_pred)}"
+            )
         correct = sum(1 for a, b in zip(y_true, y_pred) if a == b)
         accuracy = correct / len(y_true) if y_true else 0.0
         return ValidationResult(

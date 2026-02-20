@@ -268,42 +268,56 @@ def export_results(phases: list, evaluation: dict,
 # ---------------------------------------------------------------------------
 # Kubernetes Job manifest helper
 # ---------------------------------------------------------------------------
+def _validate_k8s_value(value: str, name: str) -> str:
+    """Reject values that could break YAML structure."""
+    forbidden = set('\n\r\t\x00')
+    if any(c in forbidden for c in value):
+        raise ValueError(
+            f"{name} contains invalid characters (newlines, tabs, or nulls)"
+        )
+    return value
+
+
 def generate_k8s_job_manifest(image: str, endpoint_url: str,
                               namespace: str = "ml-serving") -> str:
     """Generate a K8s Job manifest to run this load test on the cluster."""
-    return f"""\
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: ml-model-load-test
-  namespace: {namespace}
-  labels:
-    app: ml-model-load-test
-spec:
-  backoffLimit: 1
-  ttlSecondsAfterFinished: 3600
-  template:
-    spec:
-      restartPolicy: Never
-      containers:
-        - name: load-tester
-          image: {image}
-          command: ["python", "19_model_production_load_test.py"]
-          env:
-            - name: ENDPOINT_URL
-              value: "{endpoint_url}"
-            - name: MIN_TPS
-              value: "500"
-            - name: MAX_P95_LATENCY_MS
-              value: "150"
-          resources:
-            requests:
-              cpu: "1"
-              memory: 512Mi
-            limits:
-              cpu: "2"
-              memory: 1Gi
-"""
+    image = _validate_k8s_value(image, "image")
+    endpoint_url = _validate_k8s_value(endpoint_url, "endpoint_url")
+    namespace = _validate_k8s_value(namespace, "namespace")
+
+    manifest = {
+        "apiVersion": "batch/v1",
+        "kind": "Job",
+        "metadata": {
+            "name": "ml-model-load-test",
+            "namespace": namespace,
+            "labels": {"app": "ml-model-load-test"},
+        },
+        "spec": {
+            "backoffLimit": 1,
+            "ttlSecondsAfterFinished": 3600,
+            "template": {
+                "spec": {
+                    "restartPolicy": "Never",
+                    "containers": [{
+                        "name": "load-tester",
+                        "image": image,
+                        "command": ["python", "19_model_production_load_test.py"],
+                        "env": [
+                            {"name": "ENDPOINT_URL", "value": endpoint_url},
+                            {"name": "MIN_TPS", "value": "500"},
+                            {"name": "MAX_P95_LATENCY_MS", "value": "150"},
+                        ],
+                        "resources": {
+                            "requests": {"cpu": "1", "memory": "512Mi"},
+                            "limits": {"cpu": "2", "memory": "1Gi"},
+                        },
+                    }],
+                }
+            },
+        },
+    }
+    return json.dumps(manifest, indent=2)
 
 
 # ---------------------------------------------------------------------------
