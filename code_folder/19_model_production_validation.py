@@ -10,6 +10,7 @@ Demonstrates: Production readiness checks before Argo Rollouts promotion
 
 import json
 import time
+import threading
 import statistics
 import concurrent.futures
 from dataclasses import dataclass, field, asdict
@@ -201,10 +202,7 @@ class ModelProductionValidator:
                                  "All requests failed"),
             ]
 
-        latencies.sort()
-        p50 = latencies[int(len(latencies) * 0.50)]
-        p95 = latencies[int(len(latencies) * 0.95)]
-        p99 = latencies[int(len(latencies) * 0.99)]
+        p50, p95, p99 = np.percentile(latencies, [50, 95, 99])
         error_rate = errors / num_requests
 
         return [
@@ -243,6 +241,7 @@ class ModelProductionValidator:
         """Measure sustained transactions-per-second under concurrency."""
         completed = 0
         errors = 0
+        counts_lock = threading.Lock()
         deadline = time.perf_counter() + duration_seconds
 
         def _send_one():
@@ -251,9 +250,11 @@ class ModelProductionValidator:
                 try:
                     payload = {"features": np.random.randn(10).tolist()}
                     self.endpoint.predict(payload)
-                    completed += 1
+                    with counts_lock:
+                        completed += 1
                 except Exception:
-                    errors += 1
+                    with counts_lock:
+                        errors += 1
 
         with concurrent.futures.ThreadPoolExecutor(
                 max_workers=concurrency) as pool:
@@ -399,7 +400,7 @@ def print_report(report: ValidationReport):
     """Pretty-print a validation report to stdout."""
     width = 78
     print("\n" + "=" * width)
-    print(f"  MODEL PRODUCTION VALIDATION REPORT")
+    print("  MODEL PRODUCTION VALIDATION REPORT")
     print("=" * width)
     print(f"  Model:   {report.model_name} v{report.model_version}")
     print(f"  Cluster: {report.cluster_spec}")

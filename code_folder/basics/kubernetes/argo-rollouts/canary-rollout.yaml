@@ -126,7 +126,11 @@ spec:
       scaleDownDelaySeconds: 30
       scaleDownDelayRevisionLimit: 2
       antiAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution: {}
+        requiredDuringSchedulingIgnoredDuringExecution:
+          labelSelector:
+            matchLabels:
+              app: ml-model
+          topologyKey: kubernetes.io/hostname
 
 ---
 # AnalysisTemplate - defines the Prometheus queries that gate promotion

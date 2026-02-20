@@ -719,7 +719,7 @@ with DAG(
 
 Before promoting a model to serve live traffic, it must pass a battery of automated checks against the **actual EKS cluster** it will run on. These checks ensure the model meets latency SLAs, can handle the required TPS, and doesn't regress on accuracy.
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────┐
 │             PRODUCTION VALIDATION WORKFLOW                       │
 └─────────────────────────────────────────────────────────────────┘
@@ -771,17 +771,23 @@ Before promoting a model to serve live traffic, it must pass a battery of automa
 | **EKS Capacity** | Cluster can host required replicas | CPU + RAM fit |
 
 ```python
-# Run the validation suite (see code_folder/19_model_production_validation.py)
-from code_folder.model_production_validation import (
-    ModelProductionValidator, ValidationThresholds, EKSClusterSpec,
-    SimulatedModelEndpoint
+# Run the validation suite directly:
+#   python code_folder/19_model_production_validation.py
+#
+# Or import it programmatically (filename starts with a digit):
+import importlib.util, sys
+spec = importlib.util.spec_from_file_location(
+    "model_production_validation",
+    "code_folder/19_model_production_validation.py",
 )
+mod = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(mod)
 
-cluster = EKSClusterSpec(node_count=3, node_instance_type="m5.2xlarge")
-thresholds = ValidationThresholds(min_accuracy=0.85, min_tps=500)
-endpoint = SimulatedModelEndpoint(accuracy=0.92)
+cluster = mod.EKSClusterSpec(node_count=3, node_instance_type="m5.2xlarge")
+thresholds = mod.ValidationThresholds(min_accuracy=0.85, min_tps=500)
+endpoint = mod.SimulatedModelEndpoint(accuracy=0.92)
 
-validator = ModelProductionValidator(endpoint, thresholds, cluster)
+validator = mod.ModelProductionValidator(endpoint, thresholds, cluster)
 report = validator.run_full_suite("my-model", "2.1.0")
 
 if report.all_passed:
@@ -792,7 +798,7 @@ if report.all_passed:
 
 Before promotion, a multi-phase load test ramps concurrency against the staging endpoint:
 
-```
+```text
 Phase 1 (warm-up):   5 workers  × 10s
 Phase 2 (ramp):      10 workers × 15s
 Phase 3 (target):    25 workers × 20s   ← evaluated against thresholds
@@ -813,7 +819,7 @@ See `code_folder/19_model_production_load_test.py` for the full harness.
 
 Canary gradually shifts traffic from the stable model to the new version. At each step, an `AnalysisTemplate` queries Prometheus to verify the promotion criteria are met.
 
-```
+```text
 Traffic flow with canary:
 
   100% stable                 10% canary              30% canary
@@ -863,7 +869,7 @@ If **any** metric breaches its threshold, the rollout automatically aborts and t
 
 Blue-green keeps the current (active) version running while the new (preview) version is validated in parallel. Traffic switches all at once after analysis passes.
 
-```
+```text
 Blue-Green flow:
 
   ┌──────────────┐      ┌──────────────┐     ┌──────────────┐
@@ -906,7 +912,7 @@ kubectl argo rollouts abort ml-model-bluegreen          # manual abort
 
 The complete automated pipeline:
 
-```
+```text
 ┌─────────────┐   ┌──────────────┐   ┌─────────────────┐   ┌──────────────┐
 │ Model train │──►│ Register in  │──►│ Build container  │──►│ Push to ECR  │
 │ (MLflow)    │   │ MLflow       │   │ (Docker/Kaniko)  │   │              │

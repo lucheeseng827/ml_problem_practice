@@ -13,6 +13,7 @@ the model's staging endpoint before Argo Rollouts promotion.
 
 import json
 import time
+import threading
 import statistics
 import concurrent.futures
 from dataclasses import dataclass, field
@@ -67,9 +68,7 @@ class PhaseResult:
     def percentile(self, p: float) -> float:
         if not self.latencies_ms:
             return 0.0
-        sorted_lat = sorted(self.latencies_ms)
-        idx = int(len(sorted_lat) * p / 100)
-        return sorted_lat[min(idx, len(sorted_lat) - 1)]
+        return float(np.percentile(self.latencies_ms, p))
 
 
 # ---------------------------------------------------------------------------
@@ -110,7 +109,8 @@ class LoadTestRunner:
         self.config = config
         self.client = client or SimulatedHTTPClient()
 
-    def _worker(self, deadline: float, url: str, results: dict):
+    def _worker(self, deadline: float, url: str, results: dict,
+                lock: threading.Lock):
         """Single worker loop: send requests until deadline."""
         while time.perf_counter() < deadline:
             payload = {"features": np.random.randn(10).tolist()}
@@ -118,25 +118,26 @@ class LoadTestRunner:
             try:
                 self.client.post(url, payload)
                 elapsed_ms = (time.perf_counter() - start) * 1000
-                results["latencies"].append(elapsed_ms)
-                results["ok"] += 1
+                with lock:
+                    results["latencies"].append(elapsed_ms)
+                    results["ok"] += 1
             except Exception:
-                results["errors"] += 1
+                with lock:
+                    results["errors"] += 1
 
     def run_phase(self, phase_index: int, concurrency: int,
                   duration: int) -> PhaseResult:
         """Run a single load phase."""
-        # Shared mutable state accessed by threads (safe for append / += 1
-        # because GIL protects simple operations; for real precision, use
-        # a lock or atomic counters)
         shared = {"latencies": [], "ok": 0, "errors": 0}
+        shared_lock = threading.Lock()
         deadline = time.perf_counter() + duration
 
         with concurrent.futures.ThreadPoolExecutor(
                 max_workers=concurrency) as pool:
             futures = [
                 pool.submit(self._worker, deadline,
-                            self.config.endpoint_url, shared)
+                            self.config.endpoint_url, shared,
+                            shared_lock)
                 for _ in range(concurrency)
             ]
             concurrent.futures.wait(futures)
@@ -332,7 +333,7 @@ def main():
           f"error_rate<={config.max_error_rate}")
 
     # -- Run load test ------------------------------------------------------
-    print(f"\n  Starting load test...\n")
+    print("\n  Starting load test...\n")
     runner = LoadTestRunner(config)
     phases = runner.run()
 
